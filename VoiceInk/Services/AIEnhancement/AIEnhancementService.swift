@@ -33,6 +33,13 @@ class AIEnhancementService: ObservableObject {
         let stored = UserDefaults.standard.integer(forKey: "EnhancementTimeoutSeconds")
         return stored > 0 ? TimeInterval(stored) : 7
     }
+    // Local models need a larger window than cloud requests: Ollama unloads idle
+    // models (~5 min) and a cold start alone can take longer than the cloud timeout.
+    private var localModelTimeout: TimeInterval {
+        let stored = UserDefaults.standard.integer(forKey: "LocalEnhancementTimeoutSeconds")
+        let floorValue: TimeInterval = stored > 0 ? TimeInterval(stored) : 45
+        return max(baseTimeout, floorValue)
+    }
     private let rateLimitInterval: TimeInterval = 1.0
     private var lastRequestTime: Date?
     private let modelContext: ModelContext
@@ -240,7 +247,7 @@ class AIEnhancementService: ObservableObject {
                     text: formattedText,
                     systemPrompt: systemMessage,
                     model: modelName,
-                    timeout: baseTimeout
+                    timeout: localModelTimeout
                 )
                 return (
                     AIEnhancementOutputFilter.filter(result),

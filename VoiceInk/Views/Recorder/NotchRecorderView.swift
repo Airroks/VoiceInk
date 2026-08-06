@@ -159,7 +159,6 @@ struct NotchRecorderView<S: RecorderStateProvider & ObservableObject>: View {
                     )
                 }
                 RecorderModeButton(buttonSize: 20, padding: EdgeInsets())
-                OfflineIndicatorBadge()
                 Spacer(minLength: 0)
             }
             .padding(.leading, sideEdgePadding)
@@ -173,6 +172,8 @@ struct NotchRecorderView<S: RecorderStateProvider & ObservableObject>: View {
 
             HStack(spacing: 0) {
                 Spacer(minLength: 0)
+                OfflineIndicatorBadge()
+                    .padding(.trailing, 6)
                 RecorderStatusDisplay(
                     currentState: stateProvider.recordingState,
                     audioMeterProvider: recorder.audioMeterSnapshot,
