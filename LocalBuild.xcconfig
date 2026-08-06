@@ -1,11 +1,14 @@
 // LocalBuild.xcconfig
-// Build configuration for local/unsigned builds (no Apple Developer certificate required).
-// Used by `make local` — does NOT affect Debug or Release configurations.
+// Build configuration for local builds. Fork patch (2026-08-06): signs with the
+// personal Apple Development certificate instead of ad-hoc. A stable signing
+// identity keeps macOS TCC grants (Accessibility, Screen Recording, Microphone)
+// valid across rebuilds; ad-hoc signatures change with every build and
+// invalidate them. Note: this xcconfig takes precedence over xcodebuild
+// command-line overrides.
 
-// Ad-hoc signing (works without a developer account)
-CODE_SIGN_IDENTITY = -
+CODE_SIGN_IDENTITY = Apple Development
 CODE_SIGN_STYLE = Manual
-DEVELOPMENT_TEAM =
+DEVELOPMENT_TEAM = 86UWZN67H8
 PROVISIONING_PROFILE_SPECIFIER =
 
 // Entitlements are set via absolute path in the Makefile command line
