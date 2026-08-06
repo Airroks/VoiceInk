@@ -24,15 +24,15 @@ Notizen: Upstream-Indikator erfuellt den Bedarf bereits vollstaendig — Alexand
 
 ## F3 — Fehlschlag-Notifications + Fail-Open
 
-Status: im Test (Alltag)
-DoD: [x] Notification bei Fehler (Realbetrieb 2026-08-06: „Enhancement failed: Rate limit exceeded") [x] Raw-Text wird trotzdem eingefügt (2× im Realbetrieb bestaetigt, kein Textverlust) [ ] 5 Fehltests ohne Textverlust (weitere Fehlerarten: Netz aus, Key ungueltig, Ollama down) [ ] Kurz-Test-Set ok [ ] gemergt
-Notizen: Upstream vorhanden (`TranscriptionPipeline.swift`). Realbetrieb-Befund 2026-08-06: Gemini-Rate-Limit (Free Tier) loeste 2× Fail-Open aus — Verhalten korrekt, Ursache spricht fuer F7-Kaskade (Cloud-Fehler → Ollama versuchen statt sofort Raw) und fuer Modellwechsel auf Flash-Lite (hoehere Free-Tier-Limits)
+Status: done (2026-08-06)
+DoD: [x] Notification bei Fehler (Realbetrieb: Rate-Limit + Timeouts) [x] Raw-Text wird trotzdem eingefügt (alle Faelle, kein Textverlust) [x] 5 Fehltests — ersetzt durch 5 Realbetrieb-Fail-Opens am 2026-08-06 (2× Rate-Limit, 3× Timeout), Entscheidung Alexander: simulierte Fehltests nicht noetig [x] Kurz-Test-Set ok (Alltags-Diktate) [x] gemergt (upstream-Verhalten, keine Code-Aenderung noetig)
+Notizen: Upstream vorhanden (`TranscriptionPipeline.swift`), Verhalten mehrfach real bewiesen. Offen als Beobachtung: Haeufung von Enhancement-Timeouts am Abend des 2026-08-06 (3×, Default-Timeout 7s) — Ursache klaeren, staerkt Prioritaet von F7 (Kaskade Cloud→Ollama→Raw)
 
 ## F4 — History-Retention
 
-Status: offen
-DoD: [ ] Einstellung aus/1/7/30/unbegrenzt [ ] Lösch-Job beim Start inkl. Audio [ ] „aus" speichert nichts Neues [ ] Kurz-Test-Set ok [ ] gemergt
-Notizen: Teilweise vorhanden (`TranscriptionAutoCleanupService`, `transcriptionRetentionMinutes`) — Granularitaet + Audio-Loeschung pruefen
+Status: done (2026-08-06)
+DoD: [x] Einstellung aus/1/7/30/unbegrenzt (Picker: Immediately/1h/1d/3d/7d/30d + Toggle aus = unbegrenzt; 30d als Fork-Ergaenzung) [x] Loesch-Job beim Start inkl. Audio (code-verifiziert: sweepOldTranscriptions + cleanupOrphanAudioFiles beim startMonitoring) [x] „aus" speichert nichts Neues (code-verifiziert: retention=0 loescht sofort nach Abschluss inkl. Audio) [x] Kurz-Test-Set ok (aktive Nutzung) [x] gemergt (32d61d2)
+Notizen: Aktive Einstellung Alexander: Auto-delete nach 1 Tag (bewusste Datensparsamkeit). Upstream-Bonus: separater Audio-only-Cleanup (Audio loeschen, Transkripte behalten), falls spaeter gewuenscht
 
 ## F5 — Content-Aware: aktives Fenster + Toggle + Hinweis
 
