@@ -29,7 +29,7 @@ Persönliche Wispr-Flow-Alternative für macOS (Apple Silicon), schneller und f�
 
 ## Build (Stand 2026-08-06)
 
-- Build-Befehl: `make local` — ad-hoc Signing ohne Developer-Account, App landet in `~/Downloads/VoiceInk.app`
+- Build-Befehl: `make local` — ad-hoc Signing ohne Developer-Account, installiert direkt nach `/Applications/VoiceInk.app` (Fork-Patch; Upstream kopierte nach `~/Downloads`)
 - Voraussetzungen (einmalig): Xcode als aktives Developer-Verzeichnis (`xcode-select -p` muss auf `/Applications/Xcode.app/...` zeigen), `cmake` (Homebrew), Metal Toolchain (`xcodebuild -downloadComponent MetalToolchain` — Xcode 26 liefert den Metal-Compiler nicht mehr mit; mlx-swift braucht ihn)
 - Fork-Patch im Makefile: `local`-Target baut mit `-skipPackagePluginValidation -skipMacroValidation`, sonst scheitert der Headless-Build an der interaktiven Freigabe des mlx-swift-Plugins `CudaBuild`
 - whisper.cpp wird einmalig nach `~/VoiceInk-Dependencies/` geklont und als XCFramework gebaut (danach gecacht, `make clean` loescht es)
