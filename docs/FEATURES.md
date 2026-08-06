@@ -13,8 +13,8 @@ Letzte Aktualisierung: 2026-08-06 (Session-Ende) · main-Stand: siehe `git log` 
 ## F1 — Toggle Halten vs. Start/Stopp
 
 Status: im Test (Alltag)
-DoD: [x] Settings-Toggle (upstream: toggle/pushToTalk/hybrid) [ ] beide Modi 10× fehlerfrei (Hybrid laut Alltag reibungslos, formale Abnahme offen) [ ] Esc-Abbruch [ ] Kurz-Test-Set ok [ ] gemergt
-Notizen: Alexander nutzt den Hybrid-Modus taeglich (Taste tippen = Start, erneut tippen = Stopp, Halten = Push-to-Talk) — Befund 2026-08-06: „funktioniert reibungslos". Rest-Session = Esc-Abbruch + formale 10×-Abnahme, kein Neubau
+DoD: [x] Settings-Toggle (upstream: toggle/pushToTalk/hybrid) [ ] beide Modi 10× fehlerfrei (Hybrid laut Alltag reibungslos, formale Abnahme offen) [x] Esc-Abbruch (bestaetigt 2026-08-06) [ ] Kurz-Test-Set ok [ ] gemergt
+Notizen: Alexander nutzt den Hybrid-Modus taeglich (Taste tippen = Start, erneut tippen = Stopp, Halten = Push-to-Talk) — Befund 2026-08-06: „funktioniert reibungslos", Esc-Abbruch verifiziert. Rest = formale 10×-Abnahme beider Modi, kein Neubau
 
 ## F2 — Wellenform-Indikator über Dock
 
@@ -24,9 +24,9 @@ Notizen: Upstream-Indikator erfuellt den Bedarf bereits vollstaendig — Alexand
 
 ## F3 — Fehlschlag-Notifications + Fail-Open
 
-Status: offen
-DoD: [ ] Notification bei simuliertem Fehler [ ] Raw-Text wird trotzdem eingefügt [ ] 5 Fehltests ohne Textverlust [ ] Kurz-Test-Set ok [ ] gemergt
-Notizen: Upstream weitgehend vorhanden (`TranscriptionPipeline.swift`: Notification + Raw-Text bleibt finalText) — Feature = Fehltests fahren, Luecken schliessen
+Status: im Test (Alltag)
+DoD: [x] Notification bei Fehler (Realbetrieb 2026-08-06: „Enhancement failed: Rate limit exceeded") [x] Raw-Text wird trotzdem eingefügt (2× im Realbetrieb bestaetigt, kein Textverlust) [ ] 5 Fehltests ohne Textverlust (weitere Fehlerarten: Netz aus, Key ungueltig, Ollama down) [ ] Kurz-Test-Set ok [ ] gemergt
+Notizen: Upstream vorhanden (`TranscriptionPipeline.swift`). Realbetrieb-Befund 2026-08-06: Gemini-Rate-Limit (Free Tier) loeste 2× Fail-Open aus — Verhalten korrekt, Ursache spricht fuer F7-Kaskade (Cloud-Fehler → Ollama versuchen statt sofort Raw) und fuer Modellwechsel auf Flash-Lite (hoehere Free-Tier-Limits)
 
 ## F4 — History-Retention
 
