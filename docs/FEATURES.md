@@ -13,8 +13,8 @@ Letzte Aktualisierung: 2026-08-06 (Session-Ende) · main-Stand: siehe `git log` 
 ## F1 — Toggle Halten vs. Start/Stopp
 
 Status: im Test (Alltag)
-DoD: [x] Settings-Toggle (upstream: toggle/pushToTalk/hybrid) [ ] beide Modi 10× fehlerfrei (Hybrid laut Alltag reibungslos, formale Abnahme offen) [x] Esc-Abbruch (bestaetigt 2026-08-06) [ ] Kurz-Test-Set ok [ ] gemergt
-Notizen: Alexander nutzt den Hybrid-Modus taeglich (Taste tippen = Start, erneut tippen = Stopp, Halten = Push-to-Talk) — Befund 2026-08-06: „funktioniert reibungslos", Esc-Abbruch verifiziert. Rest = formale 10×-Abnahme beider Modi, kein Neubau
+DoD: [x] Settings-Toggle (upstream: toggle/pushToTalk/hybrid) [x] beide Modi ueber Fn fehlerfrei (Tippen + Halten validiert 2026-08-06) [x] Esc-Abbruch (Doppel-Esc-Bestaetigung, verifiziert 2026-08-06) [ ] Maustasten-Weg (BTT Key-Down/Up-Split) bestaetigt [ ] gemergt
+Notizen: Bug-Analyse 2026-08-06: „Halten stoppt nicht" lag NICHT an VoiceInk/Fn, sondern an der BetterTouchTool-Zuweisung Maustaste-6→F20 — BTT sendete einen Millisekunden-Tipp statt gehaltenem Key (Log-Beweis: pressDuration 0.000-0.054s, verschluckte KeyDowns im 0.5s-Cooldown). Loesung: BTT mit getrennten Mouse-Down/Up-Triggern und Key-Down-only/Key-Up-only-Aktionen konfigurieren. Diagnose-Logging in ShortcutMonitor/RecordingShortcutModeHandler eingebaut (vor Merge auf debug-Level reduzieren). Beobachtung fuer spaeter: Hybrid-Stopp-Bedingung verlangt state==recording — bei langsamem Engine-Start (state=starting beim Loslassen) koennte Halten fehlklassifiziert werden; bisher nicht reproduziert, nur Notiz
 
 ## F2 — Wellenform-Indikator über Dock
 
@@ -57,6 +57,12 @@ Notizen: Wunsch Alexander 2026-08-06. Upstream hat weder Netzwerk-Monitoring noc
 Status: offen
 DoD: [ ] Settings-Bereich zeigt Status aller drei Berechtigungen (Bedienungshilfen, Mikrofon, Bildschirmaufnahme) [ ] Deep-Link-Buttons zu den jeweiligen Systemeinstellungs-Seiten [ ] Status aktualisiert sich live nach Erteilung [ ] gemergt
 Notizen: UX-Feedback Alexander 2026-08-06 (nach Signing-Wechsel mussten Rechte neu erteilt werden, Wege schwer auffindbar). Quick-Win: Modelle inkl. `settingsURL`-Deep-Links existieren bereits im Onboarding (`OnboardingPermissionModels.swift`) — Settings-Seite kann sie wiederverwenden
+
+## F9 — Maustasten als Aufnahme-Trigger (NEU 2026-08-06, niedrige Prio)
+
+Status: offen (optional)
+DoD: [ ] Maustaste (z.B. MX Master Button 6) direkt in den Shortcut-Settings aufnehmbar [ ] Halten + Toggle funktionieren wie bei Tasten [ ] gemergt
+Notizen: Wispr-Flow-Paritaet, Wunsch Alexander. Aktuell geloest ueber BetterTouchTool (Maus-Down/Up → F20 Key-Down/Up-Split) — nativer Support nur noetig, falls der BTT-Weg im Alltag nervt. Technisch: ShortcutMonitor-EventMask um otherMouseDown/otherMouseUp erweitern + Shortcut-Recorder-UI
 
 ## Session-Log
 
