@@ -12,9 +12,9 @@ Letzte Aktualisierung: 2026-08-06 (Session-Ende) · main-Stand: siehe `git log` 
 
 ## F1 — Toggle Halten vs. Start/Stopp
 
-Status: offen
-DoD: [ ] Settings-Toggle [ ] beide Modi 10× fehlerfrei [ ] Esc-Abbruch [ ] Kurz-Test-Set ok [ ] gemergt
-Notizen: Upstream bereits vorhanden (`Shortcuts/RecordingShortcutManager.swift`: toggle/pushToTalk/hybrid) — Feature = verifizieren statt bauen
+Status: im Test (Alltag)
+DoD: [x] Settings-Toggle (upstream: toggle/pushToTalk/hybrid) [ ] beide Modi 10× fehlerfrei (Hybrid laut Alltag reibungslos, formale Abnahme offen) [ ] Esc-Abbruch [ ] Kurz-Test-Set ok [ ] gemergt
+Notizen: Alexander nutzt den Hybrid-Modus taeglich (Taste tippen = Start, erneut tippen = Stopp, Halten = Push-to-Talk) — Befund 2026-08-06: „funktioniert reibungslos". Rest-Session = Esc-Abbruch + formale 10×-Abnahme, kein Neubau
 
 ## F2 — Wellenform-Indikator über Dock
 
@@ -45,6 +45,12 @@ Notizen: `ScreenCaptureService` arbeitet bereits fensterbasiert (FocusedWindowHi
 Status: offen (startet erst, wenn F1–F5 done)
 DoD: [ ] subjektiv Wispr-Niveau [ ] alle vorherigen DoDs weiterhin grün [ ] gemergt
 Notizen: UX-Feedback Onboarding (2026-08-06, Alexander): Modell-Anbindungen als eine Uebersicht statt sequenzieller Provider-Abfrage (erst Groq-Key-Formular, Skip wirkt wie Funktionsverlust inkl. roter Warnung). Wunsch: alle Anbindungen (STT lokal/Cloud, Enhancement-Provider) auf einer Seite konfigurierbar, Skip neutral formulieren
+
+## F7 — Automatischer Offline-Fallback fuer Enhancement (NEU 2026-08-06)
+
+Status: offen
+DoD: [ ] Settings-Toggle „Offline-Fallback" + Fallback-Provider/-Modell konfigurierbar (nicht hartcodiert) [ ] Netz aus → Enhancement laeuft automatisch ueber Ollama, ohne Nutzeraktion [ ] Sichtbares Offline-Element im Aufnahme-Indikator (Notch- und Mini-Variante) [ ] Netz wieder da → automatisch zurueck zu Gemini [ ] Cloud-Fehler trotz Netz: einmal Ollama versuchen, erst dann Fail-Open Raw (Kaskade, abstimmen mit F3) [ ] Kurz-Test-Set ok [ ] gemergt
+Notizen: Wunsch Alexander 2026-08-06. Upstream hat weder Netzwerk-Monitoring noch Provider-Failover (geprueft: kein NWPathMonitor/Reachability im Code). Bauplan: kleiner NetworkStatusService (NWPathMonitor) + Failover-Logik in der Enhancement-Konfiguration + Indikator-Badge in `Views/Recorder/`. Beruehrt Fehlerpfade wie F3 → nacheinander umsetzen, F3 zuerst
 
 ## Session-Log
 
