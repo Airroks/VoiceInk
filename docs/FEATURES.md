@@ -52,6 +52,12 @@ Status: offen
 DoD: [ ] Settings-Toggle „Offline-Fallback" + Fallback-Provider/-Modell konfigurierbar (nicht hartcodiert) [ ] Netz aus → Enhancement laeuft automatisch ueber Ollama, ohne Nutzeraktion [ ] Sichtbares Offline-Element im Aufnahme-Indikator (Notch- und Mini-Variante) [ ] Netz wieder da → automatisch zurueck zu Gemini [ ] Cloud-Fehler trotz Netz: einmal Ollama versuchen, erst dann Fail-Open Raw (Kaskade, abstimmen mit F3) [ ] Kurz-Test-Set ok [ ] gemergt
 Notizen: Wunsch Alexander 2026-08-06. Upstream hat weder Netzwerk-Monitoring noch Provider-Failover (geprueft: kein NWPathMonitor/Reachability im Code). Bauplan: kleiner NetworkStatusService (NWPathMonitor) + Failover-Logik in der Enhancement-Konfiguration + Indikator-Badge in `Views/Recorder/`. Beruehrt Fehlerpfade wie F3 → nacheinander umsetzen, F3 zuerst
 
+## F8 — Berechtigungs-Seite in den Settings (NEU 2026-08-06)
+
+Status: offen
+DoD: [ ] Settings-Bereich zeigt Status aller drei Berechtigungen (Bedienungshilfen, Mikrofon, Bildschirmaufnahme) [ ] Deep-Link-Buttons zu den jeweiligen Systemeinstellungs-Seiten [ ] Status aktualisiert sich live nach Erteilung [ ] gemergt
+Notizen: UX-Feedback Alexander 2026-08-06 (nach Signing-Wechsel mussten Rechte neu erteilt werden, Wege schwer auffindbar). Quick-Win: Modelle inkl. `settingsURL`-Deep-Links existieren bereits im Onboarding (`OnboardingPermissionModels.swift`) — Settings-Seite kann sie wiederverwenden
+
 ## Session-Log
 
 - 2026-08-06 (Erst-Session): Setup-Paket eingecheckt (288985e), Workspace-Gitignore ergaenzt, Makefile-Fork-Patch fuer Headless-Build (50fc4c6), Build erfolgreich. Details Build-Voraussetzungen: CLAUDE.md Abschnitt „Build"
