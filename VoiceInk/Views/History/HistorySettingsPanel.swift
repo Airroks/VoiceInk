@@ -33,6 +33,7 @@ struct HistorySettingsPanel: View {
                             Text("1 day").tag(24 * 60)
                             Text("3 days").tag(3 * 24 * 60)
                             Text("7 days").tag(7 * 24 * 60)
+                            Text("30 days").tag(30 * 24 * 60)
                         }
 
                         Button("Run Cleanup Now") {

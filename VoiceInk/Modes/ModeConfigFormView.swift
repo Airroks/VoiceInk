@@ -540,21 +540,27 @@ struct ModeConfigFormView: View {
             Toggle(isOn: $draft.useSelectedTextContext) {
                 HStack(spacing: 4) {
                     Text("Selected Text")
-                    InfoTip("Use selected text from the active app as context for this mode.")
+                    InfoTip(
+                        "Use selected text from the active app as context for this mode. Context is sent to the configured AI provider — leave off when working with sensitive data."
+                    )
                 }
             }
 
             Toggle(isOn: $draft.useClipboardContext) {
                 HStack(spacing: 4) {
                     Text("Clipboard")
-                    InfoTip("Use clipboard text as context for this mode.")
+                    InfoTip(
+                        "Use clipboard text as context for this mode. Context is sent to the configured AI provider — leave off when working with sensitive data."
+                    )
                 }
             }
 
             Toggle(isOn: $draft.useScreenCapture) {
                 HStack(spacing: 4) {
                     Text("Screen")
-                    InfoTip("Use captured on-screen text as context for this mode.")
+                    InfoTip(
+                        "Use captured on-screen text from the active window as context for this mode. Context is sent to the configured AI provider — leave off when working with sensitive data."
+                    )
                 }
             }
         }
