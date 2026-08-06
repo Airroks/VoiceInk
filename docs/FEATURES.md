@@ -4,7 +4,7 @@ Letzte Aktualisierung: 2026-08-06 · main-Stand: f85c91b (unveraendert; Projekts
 
 ## Phasen (BAUPLAN Abschnitt 4)
 
-- [~] Phase 0 — Voraussetzungen: Xcode ✓ (aktives Dev-Verzeichnis via `xcode-select` gesetzt), Metal Toolchain ✓ (17F109), Ollama + qwen3:4b ✗, Gemini-API-Key ✗, cmake via Homebrew ✗ (Provisorium pip-venv genutzt; erst bei whisper-Rebuild wieder noetig)
+- [~] Phase 0 — Voraussetzungen: Xcode ✓ (aktives Dev-Verzeichnis via `xcode-select` gesetzt), Metal Toolchain ✓ (17F109), cmake ✓ (Homebrew 4.4.2), Ollama ✓ (0.32.5 als brew-Service) + qwen3:4b ✓ (Inferenz-Smoke-Test bestanden 2026-08-06), Gemini-API-Key ✗ (aistudio.google.com, erst fuer Phase 2)
 - [~] Phase 1 — Unveraenderter Build laeuft: **BUILD SUCCEEDED** 2026-08-06 (ad-hoc, arm64, App in `~/Downloads/VoiceInk.app`, 71 Upstream-Baseline-Warnings). Offen fuer Meilenstein: Berechtigungen erteilen, Parakeet-Modell laden, 10 Test-Diktate (Alexander)
 - [ ] Phase 2 — Konfiguration (Provider, 3 Enhancement Modes, Woerterbuch, Fn/Esc)
 - [ ] Phase 3 — Validierung mit Test-Set (15 Aufnahmen, Ergebnisse dokumentiert)
