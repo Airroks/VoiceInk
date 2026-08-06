@@ -43,7 +43,7 @@ Notizen: `ScreenCaptureService` arbeitet bereits fensterbasiert (FocusedWindowHi
 
 Status: offen (startet erst, wenn F1–F5 done)
 DoD: [ ] subjektiv Wispr-Niveau [ ] alle vorherigen DoDs weiterhin grün [ ] gemergt
-Notizen: —
+Notizen: UX-Feedback Onboarding (2026-08-06, Alexander): Modell-Anbindungen als eine Uebersicht statt sequenzieller Provider-Abfrage (erst Groq-Key-Formular, Skip wirkt wie Funktionsverlust inkl. roter Warnung). Wunsch: alle Anbindungen (STT lokal/Cloud, Enhancement-Provider) auf einer Seite konfigurierbar, Skip neutral formulieren
 
 ## Session-Log
 
