@@ -7,10 +7,12 @@ Versionierte Kopien der in der App hinterlegten Enhancement-Prompts. Bei Aenderu
 | Mode (App)                   | Hotkey / Trigger       | Prompt             |
 | ---------------------------- | ---------------------- | ------------------ |
 | Enhancement (Default)        | Fn                     | „Standard" (unten) |
-| Dictation (ohne Enhancement) | Fn + 1                 | — (Raw-Ersatz)     |
-| Rewrite                      | Fn + 2                 | App-Default        |
-| Assistant                    | Fn + 3                 | App-Default        |
+| Dictation (ohne Enhancement) | Ctrl + 1               | — (Raw-Ersatz)     |
+| Rewrite                      | Ctrl + 2               | App-Default        |
+| Assistant                    | Ctrl + 3               | App-Default        |
 | Email                        | Auto-Trigger Mail-Apps | App-Default        |
+
+Hinweis: Mode-Hotkeys urspruenglich Fn+1/2/3, am 2026-08-06 wegen Tasten-Ueberschneidung auf Ctrl+1/2/3 umgestellt.
 
 Bewusst nicht angelegt (2026-08-06): eigener Raw-Mode (durch Dictation abgedeckt), Persoenlich-Mode, LinkedIn-Mode. Prompts dafuer unten aufbewahrt — bei Bedarf in der App anlegen.
 
