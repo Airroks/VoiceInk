@@ -500,7 +500,12 @@ struct WindowAccessor: NSViewRepresentable {
     }
 
     func makeNSView(context: Context) -> NSView {
-        let view = NSView()
+        let view = WindowObservingView()
+        // Synchronous hook, runs before the window's first frame — the async
+        // callback below is too late to prevent the menu-bar-only launch flash.
+        view.onMoveToWindow = { window in
+            WindowManager.shared.suppressLaunchPresentationIfNeeded(window)
+        }
         notifyWindowIfNeeded(for: view, context: context)
         return view
     }
@@ -522,5 +527,16 @@ struct WindowAccessor: NSViewRepresentable {
 
     final class Coordinator {
         weak var window: NSWindow?
+    }
+}
+
+private final class WindowObservingView: NSView {
+    var onMoveToWindow: ((NSWindow) -> Void)?
+
+    override func viewDidMoveToWindow() {
+        super.viewDidMoveToWindow()
+        if let window {
+            onMoveToWindow?(window)
+        }
     }
 }

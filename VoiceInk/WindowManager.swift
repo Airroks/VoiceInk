@@ -61,6 +61,20 @@ class WindowManager: NSObject {
         shouldShowNextConfiguredMainWindow = true
     }
 
+    /// Called synchronously when the main content view attaches to its window,
+    /// BEFORE the window is first drawn. In menu-bar-only mode the launch window
+    /// must never become visible — configureWindow() runs async and orders it
+    /// out only after the first frame, which caused a visible flash at startup.
+    /// User-requested opens are excluded via shouldShowNextConfiguredMainWindow.
+    func suppressLaunchPresentationIfNeeded(_ window: NSWindow) {
+        guard UserDefaults.standard.bool(forKey: "IsMenuBarOnly"),
+            UserDefaults.standard.bool(forKey: "hasCompletedOnboardingV2"),
+            !shouldShowNextConfiguredMainWindow
+        else { return }
+
+        window.alphaValue = 0
+    }
+
     func configureWindow(_ window: NSWindow) {
         if let existingWindow = NSApplication.shared.windows.first(where: {
             $0.identifier == Self.mainWindowIdentifier && $0 != window
@@ -99,6 +113,7 @@ class WindowManager: NSObject {
             presentMainWindow(window)
         } else if UserDefaults.standard.bool(forKey: "IsMenuBarOnly") {
             window.orderOut(nil)
+            window.alphaValue = 1
         }
     }
 
@@ -184,6 +199,7 @@ class WindowManager: NSObject {
     }
 
     private func presentMainWindow(_ window: NSWindow) {
+        window.alphaValue = 1
         AppPresentationPolicy.activateForUserFacingWindow()
 
         if window.isMiniaturized {
