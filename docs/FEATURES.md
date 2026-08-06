@@ -1,38 +1,50 @@
 # Feature-Status
-Letzte Aktualisierung: 2026-08-05 · main-Stand: — (noch kein Build) · aktive Worktrees: keine
+
+Letzte Aktualisierung: 2026-08-06 · main-Stand: f85c91b (unveraendert; Projektstand auf Branch `claude/wispr-flow-alternative-b5194d`, Commit 50fc4c6) · aktive Worktrees: `.claude/worktrees/wispr-flow-alternative-b5194d`
 
 ## Phasen (BAUPLAN Abschnitt 4)
-- [ ] Phase 0 — Voraussetzungen (Xcode, Ollama + qwen3:4b, Gemini-API-Key)
-- [ ] Phase 1 — Unveränderter Build läuft stabil (Meilenstein: Diktat → Text am Cursor, lokal)
-- [ ] Phase 2 — Konfiguration (Provider, 3 Enhancement Modes, Wörterbuch, Fn/Esc)
+
+- [~] Phase 0 — Voraussetzungen: Xcode ✓ (aktives Dev-Verzeichnis via `xcode-select` gesetzt), Metal Toolchain ✓ (17F109), Ollama + qwen3:4b ✗, Gemini-API-Key ✗, cmake via Homebrew ✗ (Provisorium pip-venv genutzt; erst bei whisper-Rebuild wieder noetig)
+- [~] Phase 1 — Unveraenderter Build laeuft: **BUILD SUCCEEDED** 2026-08-06 (ad-hoc, arm64, App in `~/Downloads/VoiceInk.app`, 71 Upstream-Baseline-Warnings). Offen fuer Meilenstein: Berechtigungen erteilen, Parakeet-Modell laden, 10 Test-Diktate (Alexander)
+- [ ] Phase 2 — Konfiguration (Provider, 3 Enhancement Modes, Woerterbuch, Fn/Esc)
 - [ ] Phase 3 — Validierung mit Test-Set (15 Aufnahmen, Ergebnisse dokumentiert)
 
 ## F1 — Toggle Halten vs. Start/Stopp
+
 Status: offen
-DoD: [ ] Settings-Toggle  [ ] beide Modi 10× fehlerfrei  [ ] Esc-Abbruch  [ ] Kurz-Test-Set ok  [ ] gemergt
-Notizen: —
+DoD: [ ] Settings-Toggle [ ] beide Modi 10× fehlerfrei [ ] Esc-Abbruch [ ] Kurz-Test-Set ok [ ] gemergt
+Notizen: Upstream bereits vorhanden (`Shortcuts/RecordingShortcutManager.swift`: toggle/pushToTalk/hybrid) — Feature = verifizieren statt bauen
 
 ## F2 — Wellenform-Indikator über Dock
+
 Status: offen
-DoD: [ ] mittig über Dock  [ ] Wellenform reagiert auf Stimme  [ ] animiertes Ausblenden  [ ] kein Fokus-Diebstahl  [ ] externer Monitor ok  [ ] Kurz-Test-Set ok  [ ] gemergt
-Notizen: —
+DoD: [ ] mittig über Dock [ ] Wellenform reagiert auf Stimme [ ] animiertes Ausblenden [ ] kein Fokus-Diebstahl [ ] externer Monitor ok [ ] Kurz-Test-Set ok [ ] gemergt
+Notizen: Basis vorhanden: `Views/Recorder/` (MiniRecorderPanel, NotchRecorderPanel, AudioVisualizerView)
 
 ## F3 — Fehlschlag-Notifications + Fail-Open
+
 Status: offen
-DoD: [ ] Notification bei simuliertem Fehler  [ ] Raw-Text wird trotzdem eingefügt  [ ] 5 Fehltests ohne Textverlust  [ ] Kurz-Test-Set ok  [ ] gemergt
-Notizen: —
+DoD: [ ] Notification bei simuliertem Fehler [ ] Raw-Text wird trotzdem eingefügt [ ] 5 Fehltests ohne Textverlust [ ] Kurz-Test-Set ok [ ] gemergt
+Notizen: Upstream weitgehend vorhanden (`TranscriptionPipeline.swift`: Notification + Raw-Text bleibt finalText) — Feature = Fehltests fahren, Luecken schliessen
 
 ## F4 — History-Retention
+
 Status: offen
-DoD: [ ] Einstellung aus/1/7/30/unbegrenzt  [ ] Lösch-Job beim Start inkl. Audio  [ ] „aus" speichert nichts Neues  [ ] Kurz-Test-Set ok  [ ] gemergt
-Notizen: —
+DoD: [ ] Einstellung aus/1/7/30/unbegrenzt [ ] Lösch-Job beim Start inkl. Audio [ ] „aus" speichert nichts Neues [ ] Kurz-Test-Set ok [ ] gemergt
+Notizen: Teilweise vorhanden (`TranscriptionAutoCleanupService`, `transcriptionRetentionMinutes`) — Granularitaet + Audio-Loeschung pruefen
 
 ## F5 — Content-Aware: aktives Fenster + Toggle + Hinweis
+
 Status: offen
-DoD: [ ] Kontext nur aktives Fenster (Log-Check)  [ ] Toggle wirkt sofort  [ ] Hinweis sichtbar  [ ] Namens-Korrektur-Test besteht  [ ] Kurz-Test-Set ok  [ ] gemergt
-Notizen: —
+DoD: [ ] Kontext nur aktives Fenster (Log-Check) [ ] Toggle wirkt sofort [ ] Hinweis sichtbar [ ] Namens-Korrektur-Test besteht [ ] Kurz-Test-Set ok [ ] gemergt
+Notizen: `ScreenCaptureService` arbeitet bereits fensterbasiert (FocusedWindowHint) — Toggle + Hinweis pruefen
 
 ## F6 — UI-Feinschliff
+
 Status: offen (startet erst, wenn F1–F5 done)
-DoD: [ ] subjektiv Wispr-Niveau  [ ] alle vorherigen DoDs weiterhin grün  [ ] gemergt
+DoD: [ ] subjektiv Wispr-Niveau [ ] alle vorherigen DoDs weiterhin grün [ ] gemergt
 Notizen: —
+
+## Session-Log
+
+- 2026-08-06 (Erst-Session): Setup-Paket eingecheckt (288985e), Workspace-Gitignore ergaenzt, Makefile-Fork-Patch fuer Headless-Build (50fc4c6), Build erfolgreich. Details Build-Voraussetzungen: CLAUDE.md Abschnitt „Build"
