@@ -159,6 +159,7 @@ struct NotchRecorderView<S: RecorderStateProvider & ObservableObject>: View {
                     )
                 }
                 RecorderModeButton(buttonSize: 20, padding: EdgeInsets())
+                OfflineIndicatorBadge()
                 Spacer(minLength: 0)
             }
             .padding(.leading, sideEdgePadding)

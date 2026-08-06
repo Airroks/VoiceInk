@@ -48,6 +48,21 @@ struct EnhancementRuntimeConfiguration {
             useScreenCaptureContext: useScreenCaptureContext
         )
     }
+
+    /// Same configuration routed to a different provider. Passing nil as model
+    /// name lets the request resolve the provider's configured default model.
+    func replacingProvider(_ provider: AIProvider, modelName: String?) -> EnhancementRuntimeConfiguration {
+        EnhancementRuntimeConfiguration(
+            mode: mode,
+            isEnabled: isEnabled,
+            prompt: prompt,
+            provider: provider,
+            modelName: modelName,
+            useClipboardContext: useClipboardContext,
+            useSelectedTextContext: useSelectedTextContext,
+            useScreenCaptureContext: useScreenCaptureContext
+        )
+    }
 }
 
 struct OutputRuntimeConfiguration {

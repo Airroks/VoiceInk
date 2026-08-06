@@ -475,6 +475,18 @@ class AIEnhancementService: ObservableObject {
         throw EnhancementError.enhancementFailed
     }
 
+    private var isOfflineFallbackEnabled: Bool {
+        UserDefaults.standard.object(forKey: "OfflineFallbackEnabled") as? Bool ?? true
+    }
+
+    private func isCloudProvider(_ provider: AIProvider) -> Bool {
+        provider != .ollama && provider != .localCLI && provider != .voiceInkRefine
+    }
+
+    private func fallbackPromptName(from promptName: String?) -> String {
+        promptName.map { "\($0) · Ollama-Fallback" } ?? "Ollama-Fallback"
+    }
+
     func enhance(
         _ text: String,
         configuration: EnhancementRuntimeConfiguration,
@@ -483,10 +495,21 @@ class AIEnhancementService: ObservableObject {
         let startTime = Date()
         let promptName = configuration.prompt?.title
 
+        let cloudProviderSelected = configuration.provider.map(isCloudProvider) ?? false
+
+        var activeConfiguration = configuration
+        var usedOfflineFallback = false
+
+        if cloudProviderSelected, isOfflineFallbackEnabled, !NetworkStatusService.shared.isOnline {
+            logger.notice("Offline fallback: network down, routing enhancement to Ollama")
+            activeConfiguration = configuration.replacingProvider(.ollama, modelName: nil)
+            usedOfflineFallback = true
+        }
+
         do {
             let requestResult = try await makeRequestWithRetry(
                 text: text,
-                configuration: configuration,
+                configuration: activeConfiguration,
                 contextSnapshot: contextSnapshot
             )
             let endTime = Date()
@@ -494,18 +517,48 @@ class AIEnhancementService: ObservableObject {
             return AIEnhancementResult(
                 text: requestResult.text,
                 duration: duration,
-                promptName: promptName,
+                promptName: usedOfflineFallback ? fallbackPromptName(from: promptName) : promptName,
                 systemMessage: requestResult.systemMessage,
                 userMessage: requestResult.userMessage
             )
         } catch {
             let errorDescription = EnhancementFailureFormatter.description(for: error)
-            let providerName = configuration.provider?.rawValue ?? "Unconfigured"
-            let modelName = configuration.modelName ?? configuration.provider?.defaultModel ?? "Unconfigured"
+            let providerName = activeConfiguration.provider?.rawValue ?? "Unconfigured"
+            let modelName =
+                activeConfiguration.modelName ?? activeConfiguration.provider?.defaultModel ?? "Unconfigured"
             let duration = Date().timeIntervalSince(startTime)
             logger.error(
                 "Enhancement failed provider=\(providerName, privacy: .public) model=\(modelName, privacy: .public) duration=\(duration, format: .fixed(precision: 3), privacy: .public)s: \(errorDescription, privacy: .public)"
             )
+
+            // Cascade: cloud failed despite being online -> try the local Ollama
+            // model once before giving up (fail-open to raw text happens upstream).
+            if cloudProviderSelected, !usedOfflineFallback, isOfflineFallbackEnabled,
+                !(error is CancellationError)
+            {
+                logger.notice("Cloud enhancement failed — trying local Ollama fallback once")
+                let fallbackConfiguration = configuration.replacingProvider(.ollama, modelName: nil)
+                do {
+                    let fallbackResult = try await makeRequest(
+                        text: text,
+                        configuration: fallbackConfiguration,
+                        contextSnapshot: contextSnapshot
+                    )
+                    let duration = Date().timeIntervalSince(startTime)
+                    return AIEnhancementResult(
+                        text: fallbackResult.text,
+                        duration: duration,
+                        promptName: fallbackPromptName(from: promptName),
+                        systemMessage: fallbackResult.systemMessage,
+                        userMessage: fallbackResult.userMessage
+                    )
+                } catch {
+                    logger.error(
+                        "Ollama fallback also failed: \(EnhancementFailureFormatter.description(for: error), privacy: .public)"
+                    )
+                }
+            }
+
             throw error
         }
     }

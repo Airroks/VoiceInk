@@ -88,6 +88,7 @@ private struct EnhancementModelSettingsView: View {
     @AppStorage("ShortEnhancementWordThreshold") private var shortEnhancementWordThreshold = 3
     @AppStorage("EnhancementTimeoutSeconds") private var enhancementTimeoutSeconds = 7
     @AppStorage("EnhancementRetryOnTimeout") private var retryOnTimeout = true
+    @AppStorage("OfflineFallbackEnabled") private var offlineFallbackEnabled = true
     @State private var isShortEnhancementExpanded = false
 
     var body: some View {
@@ -109,6 +110,18 @@ private struct EnhancementModelSettingsView: View {
                 .toggleStyle(.switch)
             } header: {
                 Text("Enhancement Settings")
+            }
+
+            Section {
+                Toggle("Offline fallback via Ollama", isOn: $offlineFallbackEnabled)
+            } header: {
+                Text("Offline Fallback")
+            } footer: {
+                Text(
+                    "When the network is down or the cloud provider fails, VoiceInk retries the enhancement once with your configured Ollama model before falling back to the raw transcript. Configure the Ollama model under AI Models > Local."
+                )
+                .font(.footnote)
+                .foregroundStyle(.secondary)
             }
 
             Section {
