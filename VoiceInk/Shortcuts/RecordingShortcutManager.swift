@@ -1,5 +1,6 @@
 import AppKit
 import Foundation
+import os
 
 @MainActor
 class RecordingShortcutManager: ObservableObject {
@@ -342,6 +343,9 @@ private final class RecordingShortcutModeSource {
 
 @MainActor
 final class RecordingShortcutModeHandler {
+    fileprivate static let diagnosticsLogger = Logger(
+        subsystem: "com.prakashjoshipax.voiceink", category: "RecordingShortcutModeHandler")
+
     private let canHandleShortcutAction: @MainActor () -> Bool
     private let isRecorderVisible: @MainActor () -> Bool
     private let recordingState: @MainActor () -> RecordingState
@@ -389,16 +393,19 @@ final class RecordingShortcutModeHandler {
         modeId: UUID? = nil
     ) async {
         if interruptedRecordingActions.remove(action) != nil {
+            Self.diagnosticsLogger.debug("KeyDown swallowed: pending interruption for this action")
             return
         }
 
         if let lastTrigger = lastShortcutPressTime,
             Date().timeIntervalSince(lastTrigger) < shortcutPressCooldown
         {
+            Self.diagnosticsLogger.debug("KeyDown swallowed: within press cooldown")
             return
         }
 
         guard !isShortcutPressed else {
+            Self.diagnosticsLogger.debug("KeyDown swallowed: shortcut already marked as pressed")
             return
         }
         isShortcutPressed = true
@@ -452,7 +459,11 @@ final class RecordingShortcutModeHandler {
 
         case .hybrid:
             let pressDuration = shortcutPressStartTime.map { eventTime - $0 } ?? 0
-            if pressDuration >= hybridPressThreshold && recordingState() == .recording {
+            let state = recordingState()
+            Self.diagnosticsLogger.debug(
+                "Hybrid keyUp: pressDuration=\(String(format: "%.3f", pressDuration), privacy: .public)s state=\(String(describing: state), privacy: .public)"
+            )
+            if pressDuration >= hybridPressThreshold && state == .recording {
                 guard canHandleShortcutAction() else { return }
                 await toggleRecorderPanel(modeId)
             } else {

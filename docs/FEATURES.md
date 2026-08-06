@@ -12,9 +12,9 @@ Letzte Aktualisierung: 2026-08-06 (Session-Ende) · main-Stand: siehe `git log` 
 
 ## F1 — Toggle Halten vs. Start/Stopp
 
-Status: im Test (Alltag)
-DoD: [x] Settings-Toggle (upstream: toggle/pushToTalk/hybrid) [x] beide Modi ueber Fn fehlerfrei (Tippen + Halten validiert 2026-08-06) [x] Esc-Abbruch (Doppel-Esc-Bestaetigung, verifiziert 2026-08-06) [ ] Maustasten-Weg (BTT Key-Down/Up-Split) bestaetigt [ ] gemergt
-Notizen: Bug-Analyse 2026-08-06: „Halten stoppt nicht" lag NICHT an VoiceInk/Fn, sondern an der BetterTouchTool-Zuweisung Maustaste-6→F20 — BTT sendete einen Millisekunden-Tipp statt gehaltenem Key (Log-Beweis: pressDuration 0.000-0.054s, verschluckte KeyDowns im 0.5s-Cooldown). Loesung: BTT mit getrennten Mouse-Down/Up-Triggern und Key-Down-only/Key-Up-only-Aktionen konfigurieren. Diagnose-Logging in ShortcutMonitor/RecordingShortcutModeHandler eingebaut (vor Merge auf debug-Level reduzieren). Beobachtung fuer spaeter: Hybrid-Stopp-Bedingung verlangt state==recording — bei langsamem Engine-Start (state=starting beim Loslassen) koennte Halten fehlklassifiziert werden; bisher nicht reproduziert, nur Notiz
+Status: done (2026-08-06)
+DoD: [x] Settings-Toggle (upstream: toggle/pushToTalk/hybrid) [x] beide Modi ueber Fn fehlerfrei (Tippen + Halten validiert 2026-08-06) [x] Esc-Abbruch (Doppel-Esc-Bestaetigung, verifiziert 2026-08-06) [x] Maustasten-Weg via BTT Key-Down/Up-Split bestaetigt (Halten + Toggle funktionieren) [x] Kurz-Test-Set ok (zahlreiche Alltags-Diktate 2026-08-06) [x] gemergt
+Notizen: Bug-Analyse 2026-08-06: „Halten stoppt nicht" lag NICHT an VoiceInk/Fn, sondern an der BetterTouchTool-Zuweisung Maustaste-6→F20 — BTT sendete einen Millisekunden-Tipp statt gehaltenem Key (Log-Beweis: pressDuration 0.000-0.054s, verschluckte KeyDowns im 0.5s-Cooldown). Loesung: BTT mit getrennten Mouse-Down/Up-Triggern und Key-Down-only/Key-Up-only-Aktionen. Diagnose-Logging in ShortcutMonitor (warning bei Tap-Timeouts) und RecordingShortcutModeHandler (debug) bleibt fuer kuenftige Analysen im Code. Beobachtung: Hybrid-Stopp-Bedingung verlangt state==recording — bei langsamem Engine-Start theoretisch fehlklassifizierbar, bisher nicht reproduziert. Upstream-Fund: Middle-Click-Toggle existiert bereits nativ (isMiddleClickToggleEnabled) — Anknuepfungspunkt fuer F9
 
 ## F2 — Wellenform-Indikator über Dock
 
