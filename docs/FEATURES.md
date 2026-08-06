@@ -36,9 +36,9 @@ Notizen: Aktive Einstellung Alexander: Auto-delete nach 1 Tag (bewusste Datenspa
 
 ## F5 — Content-Aware: aktives Fenster + Toggle + Hinweis
 
-Status: offen
-DoD: [ ] Kontext nur aktives Fenster (Log-Check) [ ] Toggle wirkt sofort [ ] Hinweis sichtbar [ ] Namens-Korrektur-Test besteht [ ] Kurz-Test-Set ok [ ] gemergt
-Notizen: `ScreenCaptureService` arbeitet bereits fensterbasiert (FocusedWindowHint) — Toggle + Hinweis pruefen
+Status: done (2026-08-06)
+DoD: [x] Kontext nur aktives Fenster (AI-Request-Inspektion: „Active Window"-Header, ausschliesslich dessen Inhalt; Code: SCContentFilter(desktopIndependentWindow:)) [x] Toggle wirkt sofort (Screen aus → Request ohne CURRENT_WINDOW_CONTEXT, verifiziert) [x] Hinweis sichtbar (InfoTips aller drei Kontext-Quellen mit Sensible-Daten-Zusatz, Fork-Ergaenzung) [x] Namens-Korrektur-Test besteht (Fruehbeisser in Spark, Nicolaus in LinkedIn — mit Kontext korrekt, ohne Kontext falsch) [x] Kurz-Test-Set ok [x] gemergt
+Notizen: Wichtiger Betriebsfund: Fehlt die Bildschirmaufnahme-Berechtigung, scheitert die Kontext-Erfassung STILL (macOS zeigt keinen Auto-Prompt, App meldet nichts) — Symptom: CURRENT_WINDOW_CONTEXT fehlt im Request, Namens-Korrektur unterbleibt. F8-Statusseite macht das sichtbar. History-Detailansicht (gespeicherter AI-Request) ist das beste Diagnose-Werkzeug. Datenschutz-Beleg: Fenster-Kontext kann sehr viel Privates enthalten (LinkedIn-Nachrichtenliste) — Toggle-Disziplin bei Kundenarbeit wichtig, Clipboard-Kontext ggf. deaktivieren (uebertrug im Test Terminal-Befehle)
 
 ## F6 — UI-Feinschliff
 
@@ -54,15 +54,15 @@ Notizen: Wunsch Alexander 2026-08-06. Upstream hat weder Netzwerk-Monitoring noc
 
 ## F8 — Berechtigungs-Seite in den Settings (NEU 2026-08-06)
 
-Status: offen
-DoD: [ ] Settings-Bereich zeigt Status aller drei Berechtigungen (Bedienungshilfen, Mikrofon, Bildschirmaufnahme) [ ] Deep-Link-Buttons zu den jeweiligen Systemeinstellungs-Seiten [ ] Status aktualisiert sich live nach Erteilung [ ] gemergt
-Notizen: UX-Feedback Alexander 2026-08-06 (nach Signing-Wechsel mussten Rechte neu erteilt werden, Wege schwer auffindbar). Quick-Win: Modelle inkl. `settingsURL`-Deep-Links existieren bereits im Onboarding (`OnboardingPermissionModels.swift`) — Settings-Seite kann sie wiederverwenden
+Status: done (2026-08-06)
+DoD: [x] Settings-Sektion „Permissions" zeigt Status aller drei Berechtigungen (verifiziert: alle drei sichtbar, gruen) [x] Deep-Link-Buttons oeffnen die korrekten Systemeinstellungs-Seiten (verifiziert) [x] Status aktualisiert sich live (Refresh bei App-Fokus-Wechsel) [x] gemergt
+Notizen: Umsetzung: `Views/Settings/PermissionsSettingsSection.swift`, wiederverwendet die Onboarding-Modelle (OnboardingPermissionKind/-Status, PrivacySettingsPane). Mikrofon loest bei „notDetermined" den nativen Dialog aus statt nur die Settings zu oeffnen. Betroffene Datei ausserdem: SettingsView.swift (Sektion vor Diagnostics)
 
-## F9 — Maustasten als Aufnahme-Trigger (NEU 2026-08-06, niedrige Prio)
+## F9 — Maustasten als Aufnahme-Trigger
 
-Status: offen (optional)
-DoD: [ ] Maustaste (z.B. MX Master Button 6) direkt in den Shortcut-Settings aufnehmbar [ ] Halten + Toggle funktionieren wie bei Tasten [ ] gemergt
-Notizen: Wispr-Flow-Paritaet, Wunsch Alexander. Aktuell geloest ueber BetterTouchTool (Maus-Down/Up → F20 Key-Down/Up-Split) — nativer Support nur noetig, falls der BTT-Weg im Alltag nervt. Technisch: ShortcutMonitor-EventMask um otherMouseDown/otherMouseUp erweitern + Shortcut-Recorder-UI
+Status: geloest extern (2026-08-06, via BetterTouchTool)
+DoD: entfaellt — BTT-Loesung (Maus-Down/Up-Trigger → F20 Key-Down-only/Key-Up-only) liefert Wispr-Paritaet inkl. Halten und Toggle, im Alltag verifiziert
+Notizen: Nativer Support nur wieder aufnehmen, falls der BTT-Weg im Alltag stoert. Technischer Einstieg dann: ShortcutMonitor-EventMask um otherMouseDown/otherMouseUp erweitern + Shortcut-Recorder-UI; upstream existiert bereits ein Middle-Click-Toggle (isMiddleClickToggleEnabled) als Muster
 
 ## Session-Log
 
