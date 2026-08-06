@@ -163,6 +163,13 @@ struct NotchRecorderView<S: RecorderStateProvider & ObservableObject>: View {
             }
             .padding(.leading, sideEdgePadding)
             .frame(width: sideExpansion)
+            // Overlay so the badge takes no layout space: the wing has a fixed
+            // width and adding a third HStack element pushes content past the
+            // left edge. Trailing-aligned it sits after the mode logo with a gap.
+            .overlay(alignment: .trailing) {
+                OfflineIndicatorBadge()
+                    .padding(.trailing, 2)
+            }
             .frame(maxWidth: .infinity, alignment: .leading)
             .opacity(displayState != .collapsed ? 1 : 0)
             .animation(
@@ -172,8 +179,6 @@ struct NotchRecorderView<S: RecorderStateProvider & ObservableObject>: View {
 
             HStack(spacing: 0) {
                 Spacer(minLength: 0)
-                OfflineIndicatorBadge()
-                    .padding(.trailing, 6)
                 RecorderStatusDisplay(
                     currentState: stateProvider.recordingState,
                     audioMeterProvider: recorder.audioMeterSnapshot,
