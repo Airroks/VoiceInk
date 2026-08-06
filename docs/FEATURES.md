@@ -1,13 +1,13 @@
 # Feature-Status
 
-Letzte Aktualisierung: 2026-08-06 · main-Stand: f85c91b (unveraendert; Projektstand auf Branch `claude/wispr-flow-alternative-b5194d`, Commit 50fc4c6) · aktive Worktrees: `.claude/worktrees/wispr-flow-alternative-b5194d`
+Letzte Aktualisierung: 2026-08-06 (Session-Ende) · main-Stand: siehe `git log` (Branch `claude/wispr-flow-alternative-b5194d` wird laufend auf `main` ge-fast-forwardet) · aktive Worktrees: `.claude/worktrees/wispr-flow-alternative-b5194d` (Erst-Session, kann nach Session-Ende aufgeraeumt werden)
 
 ## Phasen (BAUPLAN Abschnitt 4)
 
 - [x] Phase 0 — Voraussetzungen: Xcode ✓ (aktives Dev-Verzeichnis via `xcode-select` gesetzt), Metal Toolchain ✓ (17F109), cmake ✓ (Homebrew 4.4.2), Ollama ✓ (0.32.5 als brew-Service) + qwen3:4b ✓ (Inferenz-Smoke-Test bestanden 2026-08-06), Gemini-API-Key ✓ (im Onboarding angelegt und verifiziert)
 - [x] Phase 1 — Unveraenderter Build laeuft: **BUILD SUCCEEDED** 2026-08-06 (ad-hoc, arm64, App in `~/Downloads/VoiceInk.app`, 71 Upstream-Baseline-Warnings). Meilenstein erreicht 2026-08-06: Onboarding + Berechtigungen + Parakeet V3 + mehrere Test-Diktate, App im Alltagseinsatz
 - [x] Phase 2 — Konfiguration (abgeschlossen 2026-08-06): Gemini als Enhancement-Provider ✓ · Modes + Hotkeys ✓ (Fn = Enhancement-Default mit Standard-Prompt, Fn+1 = Dictation/Raw, Fn+2 = Rewrite, Fn+3 = Assistant, Email via App-Trigger; Persoenlich/LinkedIn bewusst weggelassen — Prompts in `docs/PROMPTS.md`) · App in `/Applications` ✓ · Woerterbuch aus Wispr uebernommen ✓ · macOS-Fn-Taste auf „Keine Aktion" ✓ · Ollama als Offline-Provider ✓
-- [ ] Phase 3 — Validierung mit Test-Set (15 Aufnahmen, Ergebnisse dokumentiert)
+- [~] Phase 3 — Validierung: Entscheidung 2026-08-06 — statt sofortigem Test-Set laeuft die Validierung ueber Alltagsnutzung; weitergearbeitet wird, sobald Negativ-Befunde auftreten. Protokoll fuer systematischen Vergleich liegt bereit in `docs/TESTSET.md`. Erster Spontan-Befund: Anglizismen-Mix mit Parakeet + Gemini ueberzeugend
 
 ## F1 — Toggle Halten vs. Start/Stopp
 
