@@ -6,7 +6,7 @@ Letzte Aktualisierung: 2026-08-06 · main-Stand: f85c91b (unveraendert; Projekts
 
 - [x] Phase 0 — Voraussetzungen: Xcode ✓ (aktives Dev-Verzeichnis via `xcode-select` gesetzt), Metal Toolchain ✓ (17F109), cmake ✓ (Homebrew 4.4.2), Ollama ✓ (0.32.5 als brew-Service) + qwen3:4b ✓ (Inferenz-Smoke-Test bestanden 2026-08-06), Gemini-API-Key ✓ (im Onboarding angelegt und verifiziert)
 - [x] Phase 1 — Unveraenderter Build laeuft: **BUILD SUCCEEDED** 2026-08-06 (ad-hoc, arm64, App in `~/Downloads/VoiceInk.app`, 71 Upstream-Baseline-Warnings). Meilenstein erreicht 2026-08-06: Onboarding + Berechtigungen + Parakeet V3 + mehrere Test-Diktate, App im Alltagseinsatz
-- [~] Phase 2 — Konfiguration: Gemini als Enhancement-Provider ✓ (Onboarding, Test bestanden). Offen: 3 Enhancement Modes (Standard/LinkedIn/Raw), Woerterbuch, Fn/Esc-Hotkeys + macOS-Fn-Einstellung, Ollama als Offline-Provider eintragen
+- [~] Phase 2 — Konfiguration: Gemini als Enhancement-Provider ✓ · Modes + Hotkeys ✓ (Fn = Enhancement-Default mit Standard-Prompt, Fn+1 = Dictation/Raw, Fn+2 = Rewrite, Fn+3 = Assistant, Email via App-Trigger; Persoenlich/LinkedIn bewusst weggelassen — Prompts in `docs/PROMPTS.md` aufbewahrt) · App nach `/Applications` verschoben ✓. Offen: Woerterbuch aus Wispr uebernehmen, macOS-Fn-Taste auf „Keine Aktion", Ollama als Offline-Provider in den App-Settings
 - [ ] Phase 3 — Validierung mit Test-Set (15 Aufnahmen, Ergebnisse dokumentiert)
 
 ## F1 — Toggle Halten vs. Start/Stopp
