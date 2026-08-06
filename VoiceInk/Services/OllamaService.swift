@@ -75,6 +75,26 @@ class OllamaService: ObservableObject {
         }
     }
 
+    /// Loads the selected model into memory without generating tokens, so the
+    /// first real request (e.g. the offline enhancement fallback) skips the
+    /// cold start. Fire-and-forget: errors are intentionally ignored.
+    func prewarmSelectedModel() async {
+        guard let url = baseURLValue?.appendingPathComponent("api/generate") else { return }
+
+        var request = URLRequest(url: url)
+        request.httpMethod = "POST"
+        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        request.timeoutInterval = 120
+        let payload: [String: Any] = [
+            "model": selectedModel,
+            "prompt": "",
+            "keep_alive": "15m",
+        ]
+        request.httpBody = try? JSONSerialization.data(withJSONObject: payload)
+
+        _ = try? await URLSession.shared.data(for: request)
+    }
+
     func enhance(
         _ text: String, withSystemPrompt systemPrompt: String? = nil, model: String? = nil, timeout: TimeInterval = 30
     ) async throws -> String {

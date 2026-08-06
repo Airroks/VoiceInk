@@ -1,4 +1,5 @@
 import AppKit
+import Combine
 import Foundation
 import LLMkit
 import SwiftData
@@ -43,6 +44,7 @@ class AIEnhancementService: ObservableObject {
     private let rateLimitInterval: TimeInterval = 1.0
     private var lastRequestTime: Date?
     private let modelContext: ModelContext
+    private var networkStatusCancellable: AnyCancellable?
 
     @Published var lastCapturedClipboard: String?
 
@@ -68,6 +70,19 @@ class AIEnhancementService: ObservableObject {
             name: .aiProviderKeyChanged,
             object: nil
         )
+
+        // Prewarm the local fallback model as soon as the network drops, so the
+        // first offline enhancement skips the Ollama cold start.
+        networkStatusCancellable = NetworkStatusService.shared.$isOnline
+            .removeDuplicates()
+            .filter { !$0 }
+            .sink { [weak self] _ in
+                guard let self, self.isOfflineFallbackEnabled else { return }
+                self.logger.notice("Network dropped — prewarming Ollama fallback model")
+                Task { [aiService = self.aiService] in
+                    await aiService.prewarmOllamaModel()
+                }
+            }
     }
 
     deinit {

@@ -654,6 +654,10 @@ class AIService: ObservableObject {
         try await ollamaService.enhance(text, withSystemPrompt: systemPrompt, model: model, timeout: timeout)
     }
 
+    func prewarmOllamaModel() async {
+        await ollamaService.prewarmSelectedModel()
+    }
+
     func enhanceWithVoiceInkRefine(transcript: String) async throws -> String {
         try await voiceInkRefineService.enhance(transcript: transcript)
     }
