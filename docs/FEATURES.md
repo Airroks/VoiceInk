@@ -44,7 +44,7 @@ Notizen: Wichtiger Betriebsfund: Fehlt die Bildschirmaufnahme-Berechtigung, sche
 
 Status: offen (startet erst, wenn F1–F5 done)
 DoD: [ ] subjektiv Wispr-Niveau [ ] alle vorherigen DoDs weiterhin grün [ ] gemergt
-Notizen: UX-Feedback Onboarding (2026-08-06, Alexander): Modell-Anbindungen als eine Uebersicht statt sequenzieller Provider-Abfrage (erst Groq-Key-Formular, Skip wirkt wie Funktionsverlust inkl. roter Warnung). Wunsch: alle Anbindungen (STT lokal/Cloud, Enhancement-Provider) auf einer Seite konfigurierbar, Skip neutral formulieren · Fenster blitzt beim App-Start kurz auf, bevor der Menueleisten-Modus („im Dock ausblenden") greift (2026-08-06)
+Notizen: OFFEN: Onboarding-Ueberarbeitung (UX-Feedback 2026-08-06) — Modell-Anbindungen als eine Uebersicht statt sequenzieller Provider-Abfrage, Skip neutral formulieren; bewusst zurueckgestellt (Onboarding laeuft nur einmal, Aufwand/Nutzen) · ERLEDIGT vorab: Fenster-Flash beim Start im Menueleisten-Modus behoben (2026-08-06, Commit 4f7b047 — synchrones alpha-0 vor dem ersten Frame) · Kandidat aus F7-Beobachtung: Accidental-Start-Abbruchfenster (~1s) konfigurierbar machen, falls es im Alltag stoert
 
 ## F7 — Automatischer Offline-Fallback fuer Enhancement
 
