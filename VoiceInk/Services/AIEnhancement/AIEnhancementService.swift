@@ -34,17 +34,19 @@ class AIEnhancementService: ObservableObject {
         let stored = UserDefaults.standard.integer(forKey: "EnhancementTimeoutSeconds")
         return stored > 0 ? TimeInterval(stored) : 7
     }
-    // Local models need a larger window than cloud requests: Ollama unloads idle
-    // models (~5 min) and a cold start alone can take longer than the cloud timeout.
+    // UX budget for local enhancement: beyond ~15s users assume something broke,
+    // so we make a single attempt and fail open to the raw transcript instead of
+    // waiting longer. The offline keep-warm loop keeps the Ollama model loaded,
+    // which keeps real-world latency in the low seconds.
     private var localModelTimeout: TimeInterval {
         let stored = UserDefaults.standard.integer(forKey: "LocalEnhancementTimeoutSeconds")
-        let floorValue: TimeInterval = stored > 0 ? TimeInterval(stored) : 45
-        return max(baseTimeout, floorValue)
+        return stored > 0 ? TimeInterval(stored) : 15
     }
     private let rateLimitInterval: TimeInterval = 1.0
     private var lastRequestTime: Date?
     private let modelContext: ModelContext
     private var networkStatusCancellable: AnyCancellable?
+    private var offlineKeepWarmTask: Task<Void, Never>?
 
     @Published var lastCapturedClipboard: String?
 
@@ -71,16 +73,23 @@ class AIEnhancementService: ObservableObject {
             object: nil
         )
 
-        // Prewarm the local fallback model as soon as the network drops, so the
-        // first offline enhancement skips the Ollama cold start.
+        // Keep the local fallback model warm for the whole offline phase: prewarm
+        // immediately when the network drops, then refresh before Ollama's
+        // keep_alive window (15m) expires. Stops as soon as the network is back.
         networkStatusCancellable = NetworkStatusService.shared.$isOnline
             .removeDuplicates()
-            .filter { !$0 }
-            .sink { [weak self] _ in
-                guard let self, self.isOfflineFallbackEnabled else { return }
-                self.logger.notice("Network dropped — prewarming Ollama fallback model")
-                Task { [aiService = self.aiService] in
-                    await aiService.prewarmOllamaModel()
+            .sink { [weak self] online in
+                guard let self else { return }
+                self.offlineKeepWarmTask?.cancel()
+                self.offlineKeepWarmTask = nil
+
+                guard !online, self.isOfflineFallbackEnabled else { return }
+                self.logger.notice("Network dropped — keeping Ollama fallback model warm")
+                self.offlineKeepWarmTask = Task { [aiService = self.aiService] in
+                    while !Task.isCancelled {
+                        await aiService.prewarmOllamaModel()
+                        try? await Task.sleep(for: .seconds(600))
+                    }
                 }
             }
     }
@@ -529,11 +538,21 @@ class AIEnhancementService: ObservableObject {
         }
 
         do {
-            let requestResult = try await makeRequestWithRetry(
-                text: text,
-                configuration: activeConfiguration,
-                contextSnapshot: contextSnapshot
-            )
+            // Offline route gets a single attempt: the retry loop would multiply
+            // the wait beyond the UX budget, and fail-open already guarantees
+            // the raw transcript is inserted on failure.
+            let requestResult =
+                usedOfflineFallback
+                ? try await makeRequest(
+                    text: text,
+                    configuration: activeConfiguration,
+                    contextSnapshot: contextSnapshot
+                )
+                : try await makeRequestWithRetry(
+                    text: text,
+                    configuration: activeConfiguration,
+                    contextSnapshot: contextSnapshot
+                )
             let endTime = Date()
             let duration = endTime.timeIntervalSince(startTime)
             return AIEnhancementResult(
