@@ -21,6 +21,7 @@ Persönliche Wispr-Flow-Alternative für macOS (Apple Silicon), schneller und f�
 - Kein Merge ohne vollständig erfüllte Definition of Done
 - Letzter Schritt jeder Session: `docs/FEATURES.md` aktualisieren (Status, DoD-Haken, Notizen, betroffene Dateien)
 - Upstream (Beingpax/VoiceInk) nur gezielt mergen, nie reflexartig
+- **Nie das In-App-Update annehmen**: Der gebündelte Sparkle-Feed zeigt auf den Upstream-Appcast — ein Update ersetzt den Fork-Build durch die offizielle App und verwirft alle Fork-Änderungen (passiert am 2026-08-12 mit 2.11). Seit Commit e198315 ist der Updater in `LOCAL_BUILD` deaktiviert. Nach einem versehentlichen Update: `make local` neu bauen, dann installieren — Einstellungen und Daten (UserDefaults, Recordings, Dictionary) überleben, nur die Code-Features fehlen bis zum Rebuild
 
 ## Kontext
 
