@@ -461,8 +461,22 @@ class UpdaterViewModel: ObservableObject {
     @Published var automaticallyChecksForUpdates = false
 
     init() {
+        // Fork guard: the bundled Sparkle feed points at the upstream appcast,
+        // so an update replaces this personal build with the official app and
+        // silently drops every fork change. Local builds keep the updater
+        // dormant — upstream is merged by hand and rebuilt via `make local`.
+        #if LOCAL_BUILD
+            let shouldStartUpdater = false
+        #else
+            let shouldStartUpdater = true
+        #endif
+
         updaterController = SPUStandardUpdaterController(
-            startingUpdater: true, updaterDelegate: nil, userDriverDelegate: nil)
+            startingUpdater: shouldStartUpdater, updaterDelegate: nil, userDriverDelegate: nil)
+
+        #if LOCAL_BUILD
+            updaterController.updater.automaticallyChecksForUpdates = false
+        #endif
 
         automaticallyChecksForUpdates = updaterController.updater.automaticallyChecksForUpdates
 
