@@ -537,6 +537,13 @@ class AIEnhancementService: ObservableObject {
             usedOfflineFallback = true
         }
 
+        // With a local fallback ready, the cloud gets one attempt instead of
+        // three: retrying first made the wait stack up in front of the fallback
+        // (observed 2026-08-13: 3×15s cloud timeouts, then a 7s Ollama run —
+        // 53s until text appeared). One attempt plus fallback caps it near the
+        // configured timeout. Without a fallback the retry loop stays useful.
+        let cloudAttempts = (cloudProviderSelected && isOfflineFallbackEnabled) ? 1 : 3
+
         do {
             // Offline route gets a single attempt: the retry loop would multiply
             // the wait beyond the UX budget, and fail-open already guarantees
@@ -551,7 +558,8 @@ class AIEnhancementService: ObservableObject {
                 : try await makeRequestWithRetry(
                     text: text,
                     configuration: activeConfiguration,
-                    contextSnapshot: contextSnapshot
+                    contextSnapshot: contextSnapshot,
+                    maxRetries: cloudAttempts
                 )
             let endTime = Date()
             let duration = endTime.timeIntervalSince(startTime)

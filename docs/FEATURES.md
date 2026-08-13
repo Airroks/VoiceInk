@@ -1,6 +1,18 @@
 # Feature-Status
 
-Letzte Aktualisierung: 2026-08-06 (Session-Ende) · main-Stand: siehe `git log` (Branch `claude/wispr-flow-alternative-b5194d` wird laufend auf `main` ge-fast-forwardet) · aktive Worktrees: `.claude/worktrees/wispr-flow-alternative-b5194d` (Erst-Session, kann nach Session-Ende aufgeraeumt werden)
+Letzte Aktualisierung: 2026-08-13 · main-Stand: siehe `git log` · Upstream-Stand: **v2.11 gemergt** (2026-08-13)
+
+## Upstream-Merge 2.11 (2026-08-13)
+
+Anlass: Sparkle hatte am 2026-08-12 ungefragt die offizielle 2.11 installiert und den Fork-Build ersetzt. Nach dem Rollback wurde 2.11 kontrolliert gemergt (31 Commits, 67 Dateien upstream; nur 5 Ueberschneidungen, 1 echter Konflikt in `VoiceInk.swift` — Upstream hatte `UpdaterViewModel` nach `Services/` ausgelagert).
+
+Neu aus 2.11: VoiceInk Refine (on-device Enhancement), Cohere Transcribe (experimentell), Update-Anzeige im Dashboard, Mikrofon-Fix bei geschlossenem Deckel (Clamshell).
+
+Drei Nacharbeiten, weil Upstream lokale Sonderwege entfernt hatte — Details und Pflicht-Checkliste in `CLAUDE.md` → „Upstream-Merge":
+
+1. Keychain-Fallback fuer lokale Builds wiederhergestellt (sonst API-Keys unlesbar)
+2. Lizenz-Bypass fuer Eigenbau wiederhergestellt (sonst Testversions-Hinweis)
+3. Updater-Guard in Upstreams neuer Datei neu gesetzt
 
 ## Phasen (BAUPLAN Abschnitt 4)
 
@@ -48,7 +60,8 @@ Notizen: OFFEN: Onboarding-Ueberarbeitung (UX-Feedback 2026-08-06) — Modell-An
 
 ## F7 — Automatischer Offline-Fallback fuer Enhancement
 
-Status: done (2026-08-06)
+Status: done (2026-08-06) · nachgebessert 2026-08-13
+Nachbesserung 2026-08-13: Bei aktivem Fallback bekommt die Cloud nur noch EINEN Versuch. Vorher liefen 3 Gemini-Timeouts a 15s (45,9s) vor der Kaskade, danach lieferte Ollama in 7s — 53s bis Text erschien (Log-Beweis). Ohne Fallback bleibt die Retry-Schleife aktiv.
 DoD: [x] Settings-Toggle „Offline fallback via Ollama" (Default an; Modell/URL aus der Ollama-Provider-Config, nichts hartcodiert) [x] Netz aus → Enhancement laeuft automatisch ueber Ollama (Log-Beweis: „Offline fallback: routing enhancement to Ollama", Selbstkorrekturen offline aufgeloest) [x] Offline-Badge (wifi.slash, orange) im Notch- und Mini-Recorder, links neben dem Modus-Logo als Overlay [x] Netz zurueck → automatisch Gemini (stateless pro Request, im Test bestaetigt) [x] Kaskade: Cloud-Fehler trotz Netz → einmal Ollama, dann Fail-Open Raw [x] Kurz-Test-Set ok [x] gemergt
 Notizen: Umsetzung: `Services/NetworkStatusService.swift` (NWPathMonitor) · Failover + 15s-UX-Budget (ein Versuch, keine Retry-Schleife) in `AIEnhancementService.enhance()` · Keep-Warm-Loop laedt das Ollama-Modell beim Netzausfall vor und erneuert alle 10 Min (keep_alive 15m) · History markiert Fallback mit „· Ollama-Fallback". KRITISCHE ERKENNTNISSE: (1) Ollama-Tag `qwen3:4b` zeigt auf die Thinking-Variante (2507), die IMMER denkt (2.600+ Tokens fuer Mini-Auftraege, think:false und /no_think wirkungslos) → Wechsel auf `qwen3:4b-instruct` (1,3-1,8s inkl. Kaltstart). (2) Aktuelles Ollama laedt Modelle mit vollem Kontextfenster (qwen3: 262k → 23,7 GB KV-Cache) → `options.num_ctx` wird jetzt in jedem Request gepinnt (Default 8192, UserDefaults „OllamaNumCtx"); direkter API-Call statt LLMkit noetig. UX-Regel Alexander: <2s instant, 5-6s okay, >10s wirkt kaputt. Beobachtung (einmalig, kein Bug): Tastendruck <1s nach Aufnahme-Trigger loest upstream die Accidental-Start-Abbruchlogik aus (Ton ohne sichtbare Aufnahme) — z.B. Enter im Terminal + sofortiger Diktat-Klick
 
