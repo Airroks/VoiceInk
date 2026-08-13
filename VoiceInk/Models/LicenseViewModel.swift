@@ -451,6 +451,16 @@ final class LicenseViewModel: ObservableObject {
     }
 
     private func resolvedState(at date: Date) -> LicenseState {
+        // FORK PATCH — do not drop when merging upstream.
+        // Self-built copies need no license: VoiceInk is GPL v3 and the paid
+        // license covers the distributed, notarized app. Upstream carried this
+        // bypass in LicenseViewModel.init() until it rewrote license handling in
+        // 2.11 and dropped it. Anchored in resolvedState() because every path
+        // (init, refresh, time-based re-evaluation) funnels through here.
+        #if LOCAL_BUILD
+            return .licensed
+        #endif
+
         if storedLicenseKey != nil,
             activationId != nil || !requiresActivation
         {
