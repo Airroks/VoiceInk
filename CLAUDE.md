@@ -23,6 +23,19 @@ Persönliche Wispr-Flow-Alternative für macOS (Apple Silicon), schneller und f�
 - Upstream (Beingpax/VoiceInk) nur gezielt mergen, nie reflexartig
 - **Nie das In-App-Update annehmen**: Der gebündelte Sparkle-Feed zeigt auf den Upstream-Appcast — ein Update ersetzt den Fork-Build durch die offizielle App und verwirft alle Fork-Änderungen (passiert am 2026-08-12 mit 2.11). Seit Commit e198315 ist der Updater in `LOCAL_BUILD` deaktiviert. Nach einem versehentlichen Update: `make local` neu bauen, dann installieren — Einstellungen und Daten (UserDefaults, Recordings, Dictionary) überleben, nur die Code-Features fehlen bis zum Rebuild
 
+## Upstream-Merge: Pflicht-Checkliste
+
+Upstream kennt unsere lokalen Sonderwege nicht und entfernt sie beim Refactoring, ohne es zu merken (2.11 hat gleich zwei stillgelegt). Nach **jedem** Upstream-Merge diese vier `LOCAL_BUILD`-Guards prüfen — alle tragen im Code den Marker `FORK PATCH — do not drop when merging upstream`:
+
+| Datei                             | Zweck                                                                                                    | Symptom bei Verlust                                                                                            |
+| --------------------------------- | -------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------- |
+| `Services/KeychainService.swift`  | API-Keys über UserDefaults (`LocalKeychain_`-Prefix), da lokale Builds keine Keychain-Entitlements haben | Gemini gilt als „nicht verbunden", Mode-Editor fällt auf Ollama zurück, Prompt- und Kontext-Zeile verschwinden |
+| `Models/LicenseViewModel.swift`   | Keine Lizenzpflicht beim Eigenbau (GPL v3)                                                               | Dashboard zeigt Testversion und Kaufaufforderung                                                               |
+| `Services/UpdaterViewModel.swift` | Updater startet nicht                                                                                    | In-App-Update ersetzt den Fork durch die offizielle App                                                        |
+| `VoiceInk.swift`                  | CloudKit aus (kein iCloud-Container)                                                                     | Build- oder Laufzeitfehler beim ModelContainer                                                                 |
+
+Schnelltest: `grep -rl "LOCAL_BUILD" VoiceInk/ --include="*.swift"` muss diese vier Dateien listen. Danach Build + Praxistest: Diktat, Gemini verbunden, Dashboard ohne Lizenzhinweis.
+
 ## Kontext
 
 - Zielhardware: MacBook Pro M1, macOS 14.4+
