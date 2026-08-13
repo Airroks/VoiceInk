@@ -2,7 +2,6 @@ import AppIntents
 import AppKit
 import FluidAudio
 import OSLog
-import Sparkle
 import SwiftData
 import SwiftUI
 
@@ -22,6 +21,7 @@ struct VoiceInkApp: App {
     @StateObject private var mainWindowNavigation = MainWindowNavigation.shared
     @StateObject private var aiService = AIService()
     @StateObject private var enhancementService: AIEnhancementService
+    @StateObject private var licenseViewModel = LicenseViewModel.shared
     @StateObject private var activeWindowService = ActiveWindowService.shared
     @AppStorage("hasCompletedOnboardingV2") private var hasCompletedOnboardingV2 = false
     @AppStorage("enableAnnouncements") private var enableAnnouncements = true
@@ -302,6 +302,8 @@ struct VoiceInkApp: App {
 
                             showLaunchRemindersIfNeeded()
 
+                            GitHubStarPromptCoordinator.shared.scheduleIfNeeded(modelContainer: container)
+
                             // Run due audio-only cleanup and schedule future checks when transcript cleanup is not managing retention.
                             if !UserDefaults.standard.bool(forKey: CleanupSettingsKeys.isTranscriptionCleanupEnabled)
                                 && UserDefaults.standard.bool(forKey: CleanupSettingsKeys.isAudioCleanupEnabled)
@@ -352,6 +354,12 @@ struct VoiceInkApp: App {
                 }
             }
             .confettiCelebrationPresenter()
+            .onReceive(NotificationCenter.default.publisher(for: NSApplication.didBecomeActiveNotification)) { _ in
+                licenseViewModel.refreshLicenseState()
+            }
+            .onReceive(NSWorkspace.shared.notificationCenter.publisher(for: NSWorkspace.didWakeNotification)) { _ in
+                licenseViewModel.refreshLicenseState()
+            }
         }
         .windowStyle(.hiddenTitleBar)
         .defaultSize(width: AppWindowLayout.width, height: AppWindowLayout.minimumHeight)
@@ -451,58 +459,6 @@ private struct MainWindowRequestBridge: View {
                     WindowManager.shared.showMainWindow()
                 }
             }
-    }
-}
-
-class UpdaterViewModel: ObservableObject {
-    private let updaterController: SPUStandardUpdaterController
-
-    @Published var canCheckForUpdates = false
-    @Published var automaticallyChecksForUpdates = false
-
-    init() {
-        // Fork guard: the bundled Sparkle feed points at the upstream appcast,
-        // so an update replaces this personal build with the official app and
-        // silently drops every fork change. Local builds keep the updater
-        // dormant — upstream is merged by hand and rebuilt via `make local`.
-        #if LOCAL_BUILD
-            let shouldStartUpdater = false
-        #else
-            let shouldStartUpdater = true
-        #endif
-
-        updaterController = SPUStandardUpdaterController(
-            startingUpdater: shouldStartUpdater, updaterDelegate: nil, userDriverDelegate: nil)
-
-        #if LOCAL_BUILD
-            updaterController.updater.automaticallyChecksForUpdates = false
-        #endif
-
-        automaticallyChecksForUpdates = updaterController.updater.automaticallyChecksForUpdates
-
-        updaterController.updater.publisher(for: \.canCheckForUpdates)
-            .assign(to: &$canCheckForUpdates)
-
-        updaterController.updater.publisher(for: \.automaticallyChecksForUpdates)
-            .assign(to: &$automaticallyChecksForUpdates)
-    }
-
-    func setAutomaticallyChecksForUpdates(_ value: Bool) {
-        updaterController.updater.automaticallyChecksForUpdates = value
-    }
-
-    func checkForUpdates() {
-        // This is for manual checks - will show UI
-        updaterController.checkForUpdates(nil)
-    }
-}
-
-struct CheckForUpdatesView: View {
-    @ObservedObject var updaterViewModel: UpdaterViewModel
-
-    var body: some View {
-        Button("Check for Updates…", action: updaterViewModel.checkForUpdates)
-            .disabled(!updaterViewModel.canCheckForUpdates)
     }
 }
 

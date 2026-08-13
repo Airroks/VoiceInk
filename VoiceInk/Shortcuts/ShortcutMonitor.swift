@@ -85,6 +85,9 @@ final class ShortcutMonitor {
             let monitor = Unmanaged<ShortcutMonitor>.fromOpaque(userInfo).takeUnretainedValue()
 
             if type == .tapDisabledByTimeout || type == .tapDisabledByUserInput {
+                monitor.logger.warning(
+                    "Event tap disabled (\(type == .tapDisabledByTimeout ? "timeout" : "userInput", privacy: .public)) — re-enabling and resetting pressed shortcuts"
+                )
                 monitor.resetPressedShortcutsAfterTapInterruption()
                 if let eventTap = monitor.eventTap {
                     CGEvent.tapEnable(tap: eventTap, enable: true)
@@ -155,6 +158,9 @@ final class ShortcutMonitor {
                 state.isInterrupted = false
                 shortcuts[action] = state
             }
+            logger.warning(
+                "Synthesizing keyUp after tap interruption for action: \(String(describing: action), privacy: .public)"
+            )
             dispatchKeyUp(for: action, eventTime: eventTime)
         }
     }
