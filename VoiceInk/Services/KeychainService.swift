@@ -26,6 +26,20 @@ final class KeychainService {
     private let logger = Logger(subsystem: "com.prakashjoshipax.voiceink", category: "KeychainService")
     private let service = "com.prakashjoshipax.VoiceInk"
 
+    // FORK PATCH — do not drop when merging upstream.
+    // Local builds sign with `VoiceInk.local.entitlements`, which deliberately
+    // carries no keychain-access-groups. The data-protection keychain used below
+    // (kSecUseDataProtectionKeychain) rejects such builds with
+    // errSecMissingEntitlement, so credentials would silently fail to save and
+    // every API key would look "not connected" after a restart. Upstream shipped
+    // the same fallback until 2.11 and removed it there — re-apply after each
+    // upstream merge. Storage key prefix must stay "LocalKeychain_" so existing
+    // keys keep working.
+    #if LOCAL_BUILD
+        private let defaults = UserDefaults.standard
+        private let localPrefix = "LocalKeychain_"
+    #endif
+
     private init() {}
 
     // MARK: - Public API
@@ -53,6 +67,10 @@ final class KeychainService {
         syncable: Bool = true,
         accessibility: Accessibility? = nil
     ) -> Bool {
+        #if LOCAL_BUILD
+            defaults.set(data, forKey: localPrefix + key)
+            return true
+        #else
         let query = baseQuery(forKey: key, syncable: syncable)
         var attributes: [String: Any] = [kSecValueData as String: data]
         if let accessibility {
@@ -101,6 +119,7 @@ final class KeychainService {
             "Failed to save keychain item for key: \(key, privacy: .public), status: \(addStatus, privacy: .public)"
         )
         return false
+        #endif
     }
 
     /// Retrieves a string value from Keychain.
@@ -137,6 +156,12 @@ final class KeychainService {
 
     /// Retrieves data while preserving the Security framework status.
     func readData(forKey key: String, syncable: Bool = true) -> ReadResult<Data> {
+        #if LOCAL_BUILD
+            guard let data = defaults.data(forKey: localPrefix + key) else {
+                return .notFound
+            }
+            return .value(data)
+        #else
         var query = baseQuery(forKey: key, syncable: syncable)
         query[kSecReturnData as String] = kCFBooleanTrue
         query[kSecMatchLimit as String] = kSecMatchLimitOne
@@ -160,11 +185,16 @@ final class KeychainService {
             "Failed to retrieve keychain item for key: \(key, privacy: .public), status: \(status, privacy: .public)"
         )
         return .unavailable(status)
+        #endif
     }
 
     /// Deletes an item from Keychain.
     @discardableResult
     func delete(forKey key: String, syncable: Bool = true) -> Bool {
+        #if LOCAL_BUILD
+            defaults.removeObject(forKey: localPrefix + key)
+            return true
+        #else
         let query = baseQuery(forKey: key, syncable: syncable)
         let status = SecItemDelete(query as CFDictionary)
 
@@ -179,15 +209,20 @@ final class KeychainService {
             )
             return false
         }
+        #endif
     }
 
     /// Checks if a key exists in Keychain.
     func exists(forKey key: String, syncable: Bool = true) -> Bool {
+        #if LOCAL_BUILD
+            return defaults.data(forKey: localPrefix + key) != nil
+        #else
         var query = baseQuery(forKey: key, syncable: syncable)
         query[kSecReturnData as String] = kCFBooleanFalse
 
         let status = SecItemCopyMatching(query as CFDictionary, nil)
         return status == errSecSuccess
+        #endif
     }
 
     // MARK: - Private Helpers
