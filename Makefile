@@ -3,6 +3,8 @@ DEPS_DIR := $(HOME)/VoiceInk-Dependencies
 WHISPER_CPP_DIR := $(DEPS_DIR)/whisper.cpp
 FRAMEWORK_PATH := $(WHISPER_CPP_DIR)/build-apple/whisper.xcframework
 LOCAL_DERIVED_DATA := $(CURDIR)/.local-build
+LOCAL_CODESIGN_IDENTITY ?=
+RUN_APP_NAME ?= VoiceInk
 
 .PHONY: all clean whisper setup build local check healthcheck help dev run release release-setup
 
@@ -10,6 +12,7 @@ LOCAL_DERIVED_DATA := $(CURDIR)/.local-build
 all: check build
 
 # Development workflow
+dev: RUN_APP_NAME = VoiceInk Dev
 dev: build run
 
 # Prerequisites
@@ -42,22 +45,48 @@ setup: whisper
 	@echo "Please ensure your Xcode project references the framework from this new location."
 
 build: setup
-	xcodebuild -project VoiceInk.xcodeproj -scheme VoiceInk -configuration Debug CODE_SIGN_IDENTITY="" build
+	xcodebuild -project VoiceInk.xcodeproj -scheme VoiceInk -configuration Debug CODE_SIGN_IDENTITY="" \
+		-skipPackagePluginValidation \
+		-skipMacroValidation \
+		build
 
-# Build for local use without Apple Developer certificate
+# Build locally with stable Apple Development signing when available.
 local: check setup
 	@echo "Building VoiceInk for local use (no Apple Developer certificate required)..."
 	@rm -rf "$(LOCAL_DERIVED_DATA)"
-	xcodebuild -project VoiceInk.xcodeproj -scheme VoiceInk -configuration Debug \
+	@SIGNING_IDENTITY="$(LOCAL_CODESIGN_IDENTITY)"; \
+	if [ -z "$$SIGNING_IDENTITY" ]; then \
+		SIGNING_IDENTITIES=$$(security find-identity -v -p codesigning 2>/dev/null | awk '/"Apple Development: / { print $$2 }'); \
+		SIGNING_IDENTITY_COUNT=$$(printf '%s\n' "$$SIGNING_IDENTITIES" | awk 'NF { count++ } END { print count + 0 }'); \
+		if [ "$$SIGNING_IDENTITY_COUNT" -eq 1 ]; then \
+			SIGNING_IDENTITY=$$(printf '%s\n' "$$SIGNING_IDENTITIES" | awk 'NF { print; exit }'); \
+		elif [ "$$SIGNING_IDENTITY_COUNT" -gt 1 ]; then \
+			echo "Multiple Apple Development identities found; set LOCAL_CODESIGN_IDENTITY to choose one; using ad-hoc signing"; \
+		fi; \
+	fi; \
+	if [ -n "$$SIGNING_IDENTITY" ] && [ "$$SIGNING_IDENTITY" != "-" ]; then \
+		SIGNING_REQUIRED=YES; \
+		echo "Using stable local signing identity: $$SIGNING_IDENTITY"; \
+	else \
+		SIGNING_IDENTITY="-"; \
+		SIGNING_REQUIRED=NO; \
+		echo "Using ad-hoc signing (permissions may need approval after rebuilds)"; \
+	fi; \
+	xcodebuild -project VoiceInk.xcodeproj -scheme VoiceInk -configuration Release \
 		-derivedDataPath "$(LOCAL_DERIVED_DATA)" \
 		-xcconfig LocalBuild.xcconfig \
+		CODE_SIGN_IDENTITY="$$SIGNING_IDENTITY" \
+		CODE_SIGNING_REQUIRED="$$SIGNING_REQUIRED" \
+		CODE_SIGNING_ALLOWED=YES \
+		DEVELOPMENT_TEAM="" \
+		CODE_SIGN_ENTITLEMENTS="$(CURDIR)/VoiceInk/VoiceInk.local.entitlements" \
+		SWIFT_ACTIVE_COMPILATION_CONDITIONS='$$(inherited) LOCAL_BUILD' \
 		-skipPackagePluginValidation \
 		-skipMacroValidation \
-		CODE_SIGN_ENTITLEMENTS="$(CURDIR)/VoiceInk/VoiceInk.local.entitlements" \
 		build
-	@APP_PATH="$(LOCAL_DERIVED_DATA)/Build/Products/Debug/VoiceInk.app" && \
+	@APP_PATH="$(LOCAL_DERIVED_DATA)/Build/Products/Release/VoiceInk.app" && \
 	if [ -d "$$APP_PATH" ]; then \
-		echo "Installing VoiceInk.app to /Applications..."; \
+		echo "Installing VoiceInk.app to /Applications (FORK PATCH: upstream copies to ~/Downloads)..."; \
 		rm -rf "/Applications/VoiceInk.app"; \
 		ditto "$$APP_PATH" "/Applications/VoiceInk.app"; \
 		xattr -cr "/Applications/VoiceInk.app"; \
@@ -75,17 +104,17 @@ local: check setup
 
 # Run application
 run:
-	@if [ -d "/Applications/VoiceInk.app" ]; then \
-		echo "Opening /Applications/VoiceInk.app..."; \
-		open "/Applications/VoiceInk.app"; \
+	@if [ -d "/Applications/$(RUN_APP_NAME).app" ]; then \
+		echo "Opening /Applications/$(RUN_APP_NAME).app..."; \
+		open "/Applications/$(RUN_APP_NAME).app"; \
 	else \
-		echo "Looking for VoiceInk.app in DerivedData..."; \
-		APP_PATH=$$(find "$$HOME/Library/Developer/Xcode/DerivedData" -name "VoiceInk.app" -type d | head -1) && \
+		echo "Looking for $(RUN_APP_NAME).app in DerivedData..."; \
+		APP_PATH=$$(find "$$HOME/Library/Developer/Xcode/DerivedData" -name "$(RUN_APP_NAME).app" -type d | head -1) && \
 		if [ -n "$$APP_PATH" ]; then \
 			echo "Found app at: $$APP_PATH"; \
 			open "$$APP_PATH"; \
 		else \
-			echo "VoiceInk.app not found. Please run 'make build' or 'make local' first."; \
+			echo "$(RUN_APP_NAME).app not found. Build it with 'make local' or use 'make dev' for the development app."; \
 			exit 1; \
 		fi; \
 	fi
@@ -115,7 +144,8 @@ help:
 	@echo "  whisper            Clone and build whisper.cpp XCFramework"
 	@echo "  setup              Copy whisper XCFramework to VoiceInk project"
 	@echo "  build              Build the VoiceInk Xcode project"
-	@echo "  local              Build for local use (no Apple Developer certificate needed)"
+	@echo "  local              Build locally with stable signing when available"
+	@echo "    LOCAL_CODESIGN_IDENTITY=<SHA or name> overrides automatic Apple Development detection"
 	@echo "  run                Launch the built VoiceInk app"
 	@echo "  dev                Build and run the app (for development)"
 	@echo "  release            Build DMG and Appcast using release-notes/<version>.html"
