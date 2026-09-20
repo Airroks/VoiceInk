@@ -2,10 +2,15 @@
 // Build configuration for local builds with an ad-hoc fallback when no Apple Development identity is available.
 // Applied only by `make local` on top of Release; normal Xcode configurations are unchanged.
 
-// Defaults to ad-hoc signing; make local overrides this when an Apple Development identity is available.
-CODE_SIGN_IDENTITY = -
+// FORK PATCH — do not drop when merging upstream.
+// Upstream sets CODE_SIGN_IDENTITY = - here, which silently defeats the identity
+// detection in the Makefile: settings from -xcconfig override command-line
+// settings (man xcodebuild), so every `make local` ended up ad-hoc signed and
+// macOS TCC grants (Accessibility, Screen Recording, Microphone) were lost on
+// each rebuild. Leaving the identity unset lets the Makefile's command-line
+// value (detected Apple Development identity, or "-" as fallback) take effect.
+// DEVELOPMENT_TEAM is likewise left to the command line.
 CODE_SIGN_STYLE = Manual
-DEVELOPMENT_TEAM =
 PROVISIONING_PROFILE_SPECIFIER =
 
 // Entitlements are set via absolute path in the Makefile command line

@@ -6,7 +6,7 @@ LOCAL_DERIVED_DATA := $(CURDIR)/.local-build
 LOCAL_CODESIGN_IDENTITY ?=
 RUN_APP_NAME ?= VoiceInk
 
-.PHONY: all clean whisper setup build local check healthcheck help dev run release release-setup
+.PHONY: all clean whisper setup build local install-local check healthcheck help dev run release release-setup
 
 # Default target
 all: check build
@@ -102,6 +102,20 @@ local: check setup
 		exit 1; \
 	fi
 
+# FORK PATCH: install the last local build without rebuilding. Pairs with running
+# the xcodebuild call from `local` directly (no rm -rf) for fast iteration.
+install-local:
+	@APP_PATH="$(LOCAL_DERIVED_DATA)/Build/Products/Release/VoiceInk.app"; \
+	if [ ! -d "$$APP_PATH" ]; then \
+		echo "No local build at $$APP_PATH — run 'make local' first."; \
+		exit 1; \
+	fi; \
+	echo "Installing VoiceInk.app to /Applications..."; \
+	rm -rf "/Applications/VoiceInk.app"; \
+	ditto "$$APP_PATH" "/Applications/VoiceInk.app"; \
+	xattr -cr "/Applications/VoiceInk.app"; \
+	echo "Installed: /Applications/VoiceInk.app"
+
 # Run application
 run:
 	@if [ -d "/Applications/$(RUN_APP_NAME).app" ]; then \
@@ -146,6 +160,7 @@ help:
 	@echo "  build              Build the VoiceInk Xcode project"
 	@echo "  local              Build locally with stable signing when available"
 	@echo "    LOCAL_CODESIGN_IDENTITY=<SHA or name> overrides automatic Apple Development detection"
+	@echo "  install-local      Install the last local build to /Applications without rebuilding"
 	@echo "  run                Launch the built VoiceInk app"
 	@echo "  dev                Build and run the app (for development)"
 	@echo "  release            Build DMG and Appcast using release-notes/<version>.html"
