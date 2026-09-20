@@ -1,6 +1,24 @@
 # Feature-Status
 
-Letzte Aktualisierung: 2026-08-13 · main-Stand: siehe `git log` · Upstream-Stand: **v2.11 gemergt** (2026-08-13)
+Letzte Aktualisierung: 2026-09-20 · main-Stand: siehe `git log` · Upstream-Stand: **v2.20 gemergt** (2026-09-20, Branch `feature/upstream-2.20`, wartet auf Praxistest vor dem Fast-Forward auf `main`)
+
+## Upstream-Merge 2.20 (2026-09-20)
+
+Anlass: Releases v2.13 (27.08.) und v2.20 (19.09.) — 136 Commits, 400 Dateien. Backup vor dem Merge: Tag `backup/pre-upstream-2.20` (= alter `main` 7504541) + App-Bundle `.local-backups/VoiceInk-fork-2.11-7504541.app` (Rollback: `ditto` nach `/Applications`).
+
+Neu aus 2.13/2.20: Dictionary Auto Learn (KI-gestuetzte Korrekturvorschlaege), Woerterbuch-Import/-Export (JSON), Quick-History-Panel, **native Maus-Shortcuts** (siehe F9), Gemini-Transkription, SenseVoice, Grok Voice Transcribe 2.0, Gemini 3.8 Flash + Qwen 3.8 als Enhancement-Modelle, Shortcuts werden bei gesperrtem Mac ignoriert, bessere Esc-Abbruchlogik, Recorder-Panel-Fix nach Wake, Model-Download-Performance, Franzoesisch. Quellbaum komplett reorganisiert (`Features/`, `Infrastructure/`, `App/`) — Code-Landkarte in CLAUDE.md aktualisiert.
+
+Merge-Ergebnis (7 Konflikte + 3 stille Auto-Merge-Korrekturen), Details in CLAUDE.md → „Upstream-Merge":
+
+1. Keychain-, Lizenz- und CloudKit-Guard sind seit 2.20 **upstream nativ** (PR #889) — Fork-Patches entfernt. Der Auto-Merge hatte aus beiden Keychain-Implementierungen einen Hybrid gebaut → auf Upstream-Stand gesetzt. Migration des Gemini-Keys aus `LocalKeychain_geminiAPIKey` in den Login-Keychain (Service `com.prakashjoshipax.VoiceInk.Local`) beim ersten Start im Log bestaetigt
+2. Updater-Guard bleibt Fork-Patch (Upstream startet Sparkle weiterhin) — Laufzeit-Log: 0 Sparkle-Zeilen
+3. `OllamaService` bleibt Fork-Version: LLMkit-Stand 7b62182 kennt in `OllamaGenerationOptions` nur temperature/topP/topK — kein `num_ctx`, kein `keep_alive`
+4. F7-Kaskade in Upstreams zentralisierten Request-Pfad (`performChatCompletion`, `EnhancementRequestSettings.maximumAttempts`) eingepasst; Ollama behaelt das eigene 15s-Budget
+5. **Upstream-Bug entdeckt**: `LocalBuild.xcconfig` setzt `CODE_SIGN_IDENTITY = -` und ueberschreibt damit die im Makefile erkannte Apple-Development-Identity (`-xcconfig` hat Vorrang vor Kommandozeilen-Settings) → jeder `make local` war ad-hoc signiert, TCC-Grants waeren bei jedem Rebuild verloren gegangen. Fork-Patch: Zeile entfernt; Designated Requirement des neuen Builds ist identisch mit dem alten Fork-Build, alle TCC-Grants (Accessibility, Input Monitoring, Mikrofon, PostEvent) laut tccd-Log ohne Prompt uebernommen
+6. Neues Makefile-Target `install-local` (letzten Build ohne Neubau installieren)
+7. Xcode 27.0 verlangte erneut Lizenz-Accept (sudo, durch Alexander) und Metal-Toolchain-Download
+
+Verifiziert 2026-09-20: `** BUILD SUCCEEDED **` (Release, 9 Upstream-Warnings + 1 erwartete aus dem Sparkle-Guard), App startet ohne Crash, Parakeet V3 Prewarm 0,41s, Gemini-Key migriert, Ollama erreichbar (`qwen3:4b-instruct`), Dashboard-Stats-Snapshot einmalig neu aufgebaut (2.11-Format kannte `thisYearDailyActivity` nicht — beim naechsten Start still). Offen (nur manuell pruefbar): Diktat mit Enhancement, Dashboard ohne Lizenzhinweis, Offline-Fallback provozieren, Maus-Shortcut einrichten.
 
 ## Upstream-Merge 2.11 (2026-08-13)
 
@@ -73,10 +91,11 @@ Notizen: Umsetzung: `Views/Settings/PermissionsSettingsSection.swift`, wiederver
 
 ## F9 — Maustasten als Aufnahme-Trigger
 
-Status: geloest extern (2026-08-06, via BetterTouchTool)
-DoD: entfaellt — BTT-Loesung (Maus-Down/Up-Trigger → F20 Key-Down-only/Key-Up-only) liefert Wispr-Paritaet inkl. Halten und Toggle, im Alltag verifiziert
-Notizen: Nativer Support nur wieder aufnehmen, falls der BTT-Weg im Alltag stoert. Technischer Einstieg dann: ShortcutMonitor-EventMask um otherMouseDown/otherMouseUp erweitern + Shortcut-Recorder-UI; upstream existiert bereits ein Middle-Click-Toggle (isMiddleClickToggleEnabled) als Muster
+Status: geloest extern (2026-08-06, via BetterTouchTool) · **nativ verfuegbar seit Upstream 2.20** — Umstellung von BTT auf den nativen Maus-Shortcut steht an (Entscheidung Alexander 2026-09-20: Feature nutzen)
+DoD: [ ] Maustaste im Shortcut-Recorder (Settings → Shortcuts) als Aufnahme-Shortcut gesetzt [ ] Halten + Toggle mit Maustaste verifiziert [ ] BTT-Zuweisung Maustaste-6→F20 deaktiviert (sonst doppelter Trigger)
+Notizen: Upstream 2.20 (`Features/Shortcuts/`: `Shortcut.isSupportedMouseButtonNumber`, `ShortcutRecorder.handleMouseDown`) nimmt Maustasten direkt im Recorder auf; Hinweis in den Settings erklaert den Support. Alte BTT-Loesung bleibt als Fallback dokumentiert: Maus-Down/Up-Trigger → F20 Key-Down-only/Key-Up-only. Technischer Einstieg dann: ShortcutMonitor-EventMask um otherMouseDown/otherMouseUp erweitern + Shortcut-Recorder-UI; upstream existiert bereits ein Middle-Click-Toggle (isMiddleClickToggleEnabled) als Muster
 
 ## Session-Log
 
+- 2026-09-20 (Upstream-2.20-Merge): Backup-Tag + App-Bundle, Trocken-Merge zur Konfliktanalyse, Merge in `feature/upstream-2.20` (7e18456), Signing-Bug in Upstreams LocalBuild.xcconfig gefunden und gepatcht, `make install-local`, Build + Laufzeitpruefung (Logs, Keychain-Migration, TCC-Grants). CLAUDE.md komplett auf neue Code-Struktur gebracht. Fast-Forward auf `main` nach Praxistest
 - 2026-08-06 (Erst-Session): Setup-Paket eingecheckt (288985e), Workspace-Gitignore ergaenzt, Makefile-Fork-Patch fuer Headless-Build (50fc4c6), Build erfolgreich. Details Build-Voraussetzungen: CLAUDE.md Abschnitt „Build"
