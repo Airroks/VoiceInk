@@ -9,6 +9,9 @@ struct AIEnhancementResult: Sendable {
     let text: String
     let duration: TimeInterval
     let promptName: String?
+    // F7: the model that actually produced the text — differs from the
+    // configured one when the Ollama fallback ran.
+    let modelName: String?
     let systemMessage: String?
     let userMessage: String?
 }
@@ -436,6 +439,11 @@ class AIEnhancementService: ObservableObject {
         promptName.map { "\($0) · Ollama-Fallback" } ?? "Ollama-Fallback"
     }
 
+    private func resolvedModelName(for configuration: EnhancementRuntimeConfiguration) -> String? {
+        guard let provider = configuration.provider else { return nil }
+        return configuration.modelName ?? aiService.selectedModel(for: provider)
+    }
+
     func enhance(
         _ text: String,
         configuration: EnhancementRuntimeConfiguration,
@@ -486,6 +494,7 @@ class AIEnhancementService: ObservableObject {
                 text: requestResult.text,
                 duration: duration,
                 promptName: usedOfflineFallback ? fallbackPromptName(from: promptName) : promptName,
+                modelName: resolvedModelName(for: activeConfiguration),
                 systemMessage: requestResult.systemMessage,
                 userMessage: requestResult.userMessage
             )
@@ -517,6 +526,7 @@ class AIEnhancementService: ObservableObject {
                         text: fallbackResult.text,
                         duration: duration,
                         promptName: fallbackPromptName(from: promptName),
+                        modelName: resolvedModelName(for: fallbackConfiguration),
                         systemMessage: fallbackResult.systemMessage,
                         userMessage: fallbackResult.userMessage
                     )

@@ -199,6 +199,9 @@ class TranscriptionPipeline {
                         transcription.enhancedText = enhancementResult.text
                         transcription.promptName =
                             enhancementResult.promptName ?? resolvedEnhancementConfiguration.prompt?.title
+                        if let usedModelName = enhancementResult.modelName {
+                            transcription.aiEnhancementModelName = usedModelName
+                        }
                         transcription.enhancementDuration = enhancementResult.duration
                         transcription.aiRequestSystemMessage = enhancementResult.systemMessage
                         transcription.aiRequestUserMessage = enhancementResult.userMessage
