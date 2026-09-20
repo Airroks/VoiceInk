@@ -40,11 +40,18 @@ struct CustomPrompt: Identifiable, Codable, Equatable {
     }
 
     var finalPromptText: String {
-        if useSystemInstructions {
-            return String(format: AIPrompts.enhancementSystemTemplate, self.promptText)
-        } else {
-            return self.promptText
+        finalPromptText(forLocalModel: false)
+    }
+
+    // FORK PATCH — do not drop when merging upstream.
+    // Local models get the compact system template (see AIPrompts).
+    func finalPromptText(forLocalModel isLocalModel: Bool) -> String {
+        guard useSystemInstructions else {
+            return promptText
         }
+        let template =
+            isLocalModel ? AIPrompts.enhancementSystemTemplateLocal : AIPrompts.enhancementSystemTemplate
+        return String(format: template, promptText)
     }
 }
 

@@ -209,7 +209,9 @@ class AIEnhancementService: ObservableObject {
                 ""
             }
 
-        return [prompt.finalPromptText, customVocabularySection, contextSection]
+        // F7: the Ollama fallback gets the compact system template (see AIPrompts).
+        let promptSection = prompt.finalPromptText(forLocalModel: configuration.provider == .ollama)
+        return [promptSection, customVocabularySection, contextSection]
             .filter { !$0.isEmpty }
             .joined(separator: "\n\n")
     }

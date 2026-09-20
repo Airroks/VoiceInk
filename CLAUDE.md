@@ -36,6 +36,7 @@ Upstream kennt unsere lokalen Sonderwege nicht und entfernt sie beim Refactoring
 
 Merge-sensible Fork-Bereiche ohne eigenen Guard (bei Konflikten bewusst zusammenführen, nicht Upstream nehmen):
 
+- `Core/Enhancement/AIPrompts.swift` (`enhancementSystemTemplateLocal`, FORK PATCH) + `Features/Enhancement/Models/CustomPrompt.swift` (`finalPromptText(forLocalModel:)`, FORK PATCH) — der Ollama-Pfad bekommt das kompakte 2.11-Template; Upstreams 2.20-Template degradiert qwen3:4b messbar (Beleg in FEATURES.md → Upstream-Merge 2.20). Bei kuenftigen Upstream-Prompt-Aenderungen: Gemini folgt Upstream, das lokale Template bleibt
 - `Features/Enhancement/Workflows/AIEnhancementService.swift` — F7-Kaskade (Offline-Route, 1 Cloud-Versuch bei aktivem Fallback, Ollama-Fallback nach Cloud-Fehler, Keep-Warm-Loop, eigenes 15s-Budget für Ollama). Upstream 2.20 hat die Requests in `performChatCompletion` zentralisiert; die Kaskade sitzt in `enhance()`, das Ollama-Timeout im `performChatCompletion`-Aufruf
 - Fork-eigene Dateien (existieren upstream nicht): `Infrastructure/SystemIntegration/Network/NetworkStatusService.swift`, `Features/Recording/Views/OfflineIndicatorBadge.swift`, `Features/Settings/Views/PermissionsSettingsSection.swift`
 - Kleinere Fork-Diffs: `Features/Modes/State/ModeRuntimeConfiguration.swift` (`replacingProvider`), `Features/Modes/Views/ModeConfigFormView.swift` (F5-Hinweise), `Features/History/Views/HistorySettingsPanel.swift` (30-Tage-Option), `App/Windows/WindowManager.swift` + `App/VoiceInk.swift` (Launch-Flash-Unterdrückung), Diagnose-Logging in `Features/Shortcuts/Coordination/`
@@ -44,7 +45,7 @@ Vorgehen bei jedem Upstream-Merge:
 
 1. `git tag backup/pre-upstream-<version>` auf den aktuellen `main` + App-Bundle nach `.local-backups/` kopieren (`ditto /Applications/VoiceInk.app .local-backups/VoiceInk-fork-<alt>-<hash>.app`)
 2. Trocken-Merge (`git merge --no-commit`, dann `--abort`) für die Konfliktliste; bei Auto-Merges in Guard-Dateien den Inhalt lesen — 2.20 hat aus zwei Keychain-Implementierungen still einen Hybrid gebaut
-3. Schnelltest nach dem Merge: `grep -rln "FORK PATCH" Makefile LocalBuild.xcconfig VoiceInk/` muss genau die vier Dateien der Tabelle listen; `grep -rl LOCAL_BUILD VoiceInk/ --include="*.swift"` muss `UpdaterViewModel.swift` enthalten
+3. Schnelltest nach dem Merge: `grep -rln "FORK PATCH" Makefile LocalBuild.xcconfig VoiceInk/` muss die vier Dateien der Tabelle plus `AIPrompts.swift` und `CustomPrompt.swift` listen; `grep -rl LOCAL_BUILD VoiceInk/ --include="*.swift"` muss `UpdaterViewModel.swift` enthalten
 4. `make local` → `** BUILD SUCCEEDED **`; Signatur prüfen: `codesign -dvvv /Applications/VoiceInk.app` muss `Authority=Apple Development` und `TeamIdentifier=86UWZN67H8` zeigen (nicht `adhoc`); dann Praxistest: Diktat, Gemini verbunden, Dashboard ohne Lizenzhinweis, kein Update-Hinweis, Offline-Fallback einmal provozieren (WLAN aus)
 
 ## Kontext
