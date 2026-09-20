@@ -1,6 +1,6 @@
 # Feature-Status
 
-Letzte Aktualisierung: 2026-09-20 · main-Stand: siehe `git log` · Upstream-Stand: **v2.20 gemergt** (2026-09-20, Branch `feature/upstream-2.20`, wartet auf Praxistest vor dem Fast-Forward auf `main`)
+Letzte Aktualisierung: 2026-09-20 · main-Stand: siehe `git log` · Upstream-Stand: **v2.20 gemergt** (2026-09-20, Praxistest bestanden, auf `main`)
 
 ## Upstream-Merge 2.20 (2026-09-20)
 
@@ -18,7 +18,7 @@ Merge-Ergebnis (7 Konflikte + 3 stille Auto-Merge-Korrekturen), Details in CLAUD
 6. Neues Makefile-Target `install-local` (letzten Build ohne Neubau installieren)
 7. Xcode 27.0 verlangte erneut Lizenz-Accept (sudo, durch Alexander) und Metal-Toolchain-Download
 
-Praxistest Alexander 2026-09-20: Diktat + Gemini ok (58,7s Diktat → Parakeet 758ms, gemini-3.6-flash 1,9s), Dashboard ohne Lizenzhinweis, Offline-Fallback greift („Default · Ollama-Fallback", 1,6s) — aber mit deutlich schlechterem Text. Ursache per A/B-Test gegen Ollama belegt (gleiche Parameter wie die App, reproduzierbar bei Temperatur 0,3): Upstreams neues System-Template aus 2.20 („Improve prompt structure": XML-Sektionen, Absatz-/Listenregeln, Kuerzungs-Beispiele) laesst qwen3:4b-instruct jeden Satz mit Markdown-Zeilenumbruch einzeln setzen und Inhalt um Selbstkorrekturen herum verlieren („Das wäre besser." 2/2 weg, „Da müssten wir" → „Ich müsste"). Fork-Fix: `AIPrompts.enhancementSystemTemplateLocal` (= 2.11-Template) nur fuer `provider == .ollama`, Gemini behaelt Upstreams Template. Nach dem Fix installiert, wartet auf Alexanders Offline-Gegenprobe.
+Praxistest Alexander 2026-09-20: Diktat + Gemini ok (58,7s Diktat → Parakeet 758ms, gemini-3.6-flash 1,9s), Dashboard ohne Lizenzhinweis, Offline-Fallback greift („Default · Ollama-Fallback", 1,6s) — aber mit deutlich schlechterem Text. Ursache per A/B-Test gegen Ollama belegt (gleiche Parameter wie die App, reproduzierbar bei Temperatur 0,3): Upstreams neues System-Template aus 2.20 („Improve prompt structure": XML-Sektionen, Absatz-/Listenregeln, Kuerzungs-Beispiele) laesst qwen3:4b-instruct jeden Satz mit Markdown-Zeilenumbruch einzeln setzen und Inhalt um Selbstkorrekturen herum verlieren („Das wäre besser." 2/2 weg, „Da müssten wir" → „Ich müsste"). Fork-Fix: `AIPrompts.enhancementSystemTemplateLocal` (= 2.11-Template) nur fuer `provider == .ollama`, Gemini behaelt Upstreams Template. Gegenprobe Alexander 2026-09-20 15:09–15:14 (4 Diktate, 21–47s): Parakeet 265–349ms · Gemini 1,54s/1,75s · Ollama-Fallback 2,95s/3,25s (History-Eintraege belegen das lokale 2.11-Template fuer beide Offline-Laeufe) — Alexander: „wirklich zufrieden", Text kommt schnell und sauber. Zweiter Fund dabei: History zeigte fuer Fallback-Eintraege `gemini-3.6-flash` als Modell (Pipeline schrieb den konfigurierten Namen vor dem Request) — gefixt, `AIEnhancementResult.modelName` traegt jetzt das tatsaechlich genutzte Modell.
 
 Maus-Shortcut (F9): Taste 6 wurde im Recorder nicht erkannt — Recorder nutzt einen lokalen `NSEvent`-Monitor, BTT lag mit Taste-6→F20 noch davor und hat den Klick geschluckt (VoiceInk sah nur F20). Alexander bleibt bei BTT→F20 mit F20 als VoiceInk-Toggle. Nativer Weg offen: BTT-Zuweisung deaktivieren, dann im Recorder aufnehmen.
 
@@ -101,5 +101,6 @@ Notizen: Upstream 2.20 (`Features/Shortcuts/`: `Shortcut.isSupportedMouseButtonN
 
 ## Session-Log
 
+- 2026-09-20 (Upstream-2.20-Merge, Abschluss): Praxistest bestanden (Gemini 1,5–1,9s, Ollama-Fallback 3,0–3,3s, Parakeet <350ms), History-Modellname fuer Fallback gefixt, `main` fast-forwarded
 - 2026-09-20 (Upstream-2.20-Merge): Backup-Tag + App-Bundle, Trocken-Merge zur Konfliktanalyse, Merge in `feature/upstream-2.20` (7e18456), Signing-Bug in Upstreams LocalBuild.xcconfig gefunden und gepatcht, `make install-local`, Build + Laufzeitpruefung (Logs, Keychain-Migration, TCC-Grants). Praxistest: Gemini/Lizenz/Fallback ok; Ollama-Qualitaetsverlust per A/B auf Upstreams neues System-Template zurueckgefuehrt und mit lokalem 2.11-Template gefixt. CLAUDE.md komplett auf neue Code-Struktur gebracht. Fast-Forward auf `main` nach Offline-Gegenprobe
 - 2026-08-06 (Erst-Session): Setup-Paket eingecheckt (288985e), Workspace-Gitignore ergaenzt, Makefile-Fork-Patch fuer Headless-Build (50fc4c6), Build erfolgreich. Details Build-Voraussetzungen: CLAUDE.md Abschnitt „Build"
